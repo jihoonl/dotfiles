@@ -1,0 +1,11 @@
+
+function kineticbase {
+ echo 'Setting kineticbase ws'
+ source /opt/ros/kinetic/setup.bash
+}
+
+
+function cartows {
+ echo 'Setting cartographer ws'
+ source /data/private/work/ros/carto/devel/setup.bash
+}

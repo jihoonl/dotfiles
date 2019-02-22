@@ -1,3 +1,5 @@
 [user]
 	email = jihoonlee.in@gmail.com
 	name = Jihoon Lee
+[push]
+	default = simple
