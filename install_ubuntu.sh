@@ -47,3 +47,6 @@ ln -sf `pwd`/tmux.conf ~/.tmux.conf
 
 echo "Adding git config"
 ln -sf `pwd`/gitconfig ~/.gitconfig
+
+echo "Adding setup.cfg"
+ln -sf `pwd`/isort.cfg ~/.isort.cfg
