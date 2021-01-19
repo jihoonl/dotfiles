@@ -16,7 +16,7 @@ echo "installing dependencies"
 sudo apt install python-dev python-pip python3-dev python3-pip ruby --yes
 sudo apt install neovim python-neovim python3-neovim flake8 pylint python-pylint-django clang-format silversearcher-ag --yes
 sudo apt install build-essential tmux --yes
-pip install neovim yapf isort mypy
+pip install neovim yapf isort mypy isort black
 
 echo "Installing xsel to be able to use the X clipboard"
 sudo apt-get install xsel --yes
