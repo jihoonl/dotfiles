@@ -1,8 +1,9 @@
 #!/bin/bash
 
+sudo apt update
+
 echo "Install neovim"
 if [ ! -f /usr/bin/nvim ]; then
-    sudo apt update
     sudo apt install python-software-properties software-properties-common --yes
     sudo add-apt-repository ppa:neovim-ppa/unstable
     sudo apt update
@@ -14,7 +15,7 @@ ln -sf `pwd`/nvim ~/.config/nvim
 
 echo "installing dependencies"
 sudo apt install python-dev python-pip python3-dev python3-pip ruby --yes
-sudo apt install neovim python-neovim python3-neovim flake8 pylint python-pylint-django clang-format silversearcher-ag --yes
+sudo apt install python-neovim python3-neovim flake8 pylint python-pylint-django clang-format silversearcher-ag --yes
 sudo apt install build-essential tmux --yes
 pip install neovim yapf isort mypy isort black
 
