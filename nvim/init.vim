@@ -42,19 +42,19 @@ Plug 'itchyny/lightline.vim' " Vim airline alternative without the crap
 " Plug 'itchyny/vim-cursorword' " underline word under cursor
 
 " text objects and motion
-"Plug 'tpope/vim-unimpaired' "Keymappings for common commands
-"Plug 'easymotion/vim-easymotion' "Vim motion on speed
+Plug 'tpope/vim-unimpaired' "Keymappings for common commands
+Plug 'easymotion/vim-easymotion' "Vim motion on speed
 "Plug 'tomtom/tcomment_vim' "Easier commenting
-"Plug 'tpope/vim-surround' "Surround your code easily
+Plug 'tpope/vim-surround' "Surround your code easily
 "Plug 'wellle/targets.vim' "Add more text objects for parens (eg: ci) or da,)
-"Plug 'kana/vim-textobj-user' "easy new text objects
-"Plug 'kana/vim-textobj-function' "function text object > f
-"Plug 'kana/vim-textobj-indent' "Text objects base on intent > i
-"Plug 'lucapette/vim-textobj-underscore' " underscore text object > _
-"Plug 'Julian/vim-textobj-brace' " []{}() text obj > j
-"Plug 'saihoooooooo/vim-textobj-space' " empty space with > S
-"Plug 'whatyouhide/vim-textobj-xmlattr' " xml/html tags with > x
-"Plug 'bps/vim-textobj-python' " python function /class with > f > c
+Plug 'kana/vim-textobj-user' "easy new text objects
+Plug 'kana/vim-textobj-function' "function text object > f
+Plug 'kana/vim-textobj-indent' "Text objects base on intent > i
+Plug 'lucapette/vim-textobj-underscore' " underscore text object > _
+Plug 'Julian/vim-textobj-brace' " []{}() text obj > j
+Plug 'saihoooooooo/vim-textobj-space' " empty space with > S
+Plug 'whatyouhide/vim-textobj-xmlattr' " xml/html tags with > x
+Plug 'bps/vim-textobj-python' " python function /class with > f > c
 call plug#end()
 
 
@@ -110,10 +110,6 @@ noremap <M-Left> :bprev<CR>
 noremap <M-Right> :bnext<CR>
 map <Leader>n <plug>NERDTreeTabsToggle<CR>
 tnoremap <ESC> <C-\><C-n>
-nnoremap <leader>cdh :execute ':cd ' . system("echo $HOME")<cr>
-nnoremap <leader>cdc :execute ':cd ' . system("echo ${CATKIN_WS:-~/catkin_ws}/src/toru_deploy")<cr>
-nnoremap <leader>cdm :execute ':cd ' . system("echo ${CMAN_CONFIG_DIR:-/opt/magazino/config}")<cr>
-nnoremap <leader>m :let package_name=FindRosPkg(expand('%:p')) <cr>:call SetShell()<cr>:execute ':Start ci '.package_name<cr>
 nnoremap <leader>o :vsplit term://$SHELL<cr>i
 nnoremap <leader>pk :execute ':silent !pkill -f ' .expand('%:t')<cr>
 nnoremap <leader>h :History<cr>
@@ -183,16 +179,9 @@ autocmd BufReadPost * if &ft != 'gitcommit' |
             \ endif
 
 
-function! FindRosPkg(path)
-python << endpython
-import vim
-import rospkg
-package = rospkg.get_package_name(vim.eval('a:path'))
-if package is not None:
-    vim.command("let l:package_name='" + str(package) + "'")
-endpython
-return l:package_name
-endfunction
+
+
+
 
 function! s:DiffWithSaved()
   let filetype=&ft

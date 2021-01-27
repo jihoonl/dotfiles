@@ -5,7 +5,7 @@ sudo apt update
 echo "Install neovim"
 if [ ! -f /usr/bin/nvim ]; then
     sudo apt install python-software-properties software-properties-common --yes
-    sudo add-apt-repository ppa:neovim-ppa/unstable
+    sudo add-apt-repository ppa:neovim-ppa/stable
     sudo apt update
     sudo apt install neovim --yes
 fi
@@ -51,3 +51,5 @@ ln -sf `pwd`/gitconfig ~/.gitconfig
 
 echo "Adding setup.cfg"
 ln -sf `pwd`/isort.cfg ~/.isort.cfg
+
+vim +UpdateRemotePlugins +PlugInstall +PlugStatus
