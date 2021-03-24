@@ -108,9 +108,6 @@ noremap <M-Right> :bnext<CR>
 map <Leader>n <plug>NERDTreeTabsToggle<CR>
 tnoremap <ESC> <C-\><C-n>
 nnoremap <leader>cdh :execute ':cd ' . system("echo $HOME")<cr>
-nnoremap <leader>cdc :execute ':cd ' . system("echo ${CATKIN_WS:-~/catkin_ws}/src/toru_deploy")<cr>
-nnoremap <leader>cdm :execute ':cd ' . system("echo ${CMAN_CONFIG_DIR:-/opt/magazino/config}")<cr>
-nnoremap <leader>m :let package_name=FindRosPkg(expand('%:p')) <cr>:call SetShell()<cr>:execute ':Start ci '.package_name<cr>
 nnoremap <leader>o :vsplit term://$SHELL<cr>i
 nnoremap <leader>pk :execute ':silent !pkill -f ' .expand('%:t')<cr>
 nnoremap <leader>h :History<cr>
