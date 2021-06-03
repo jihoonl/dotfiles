@@ -136,7 +136,6 @@ let g:nerdtree_tabs_open_on_gui_startup = !$NVIM_TUI_ENABLE_TRUE_COLOR
 let NERDTreeIgnore = ['\.pyc$', '\.pyo$', '\.rbc$', '\.rbo$', '\.class$', '\.o$', '\~$', '\.egg-info$[[dir]]'] "Ignore files in tree
 let g:highlightedyank_highlight_duration = 200
 let g:deoplete#enable_at_startup = 1
-"let g:deoplete#sources#jedi#extra_path = [$CATKIN_WS.'/install/lib/python2.7/dist-packages', '/opt/ros/'.$ROS_DISTRO.'/lib/python2.7/dist-packages']
 let g:chapa_default_mappings = 1
 let g:chapa_no_repeat_mappings = 1
 "let g:jedi#goto_assignments_command = ""
