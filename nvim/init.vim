@@ -1,8 +1,25 @@
-call plug#begin('~/.config/nvim/plugged')
+let g:is_nvim = has('nvim')
+let g:is_vim8 = v:version >= 800 ? 1 : 0
+
+" Reuse nvim's runtimepath and packpath in vim
+if !g:is_nvim && g:is_vim8
+  set runtimepath-=~/.vim
+    \ runtimepath^=~/.local/share/nvim/site runtimepath^=~/.vim
+    \ runtimepath-=~/.vim/after
+    \ runtimepath+=~/.local/share/nvim/site/after runtimepath+=~/.vim/after
+  let &packpath = &runtimepath
+endif
+
+if g:is_nvim
+  call plug#begin('~/.config/nvim/plugged')
+else
+  call plug#begin('~/.vim/plugged')
+endif
+
 
 " autocompletion
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-"Plug 'zchee/deoplete-jedi'
+" Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'zchee/deoplete-jedi'
 " Plug 'tweekmonster/deoplete-clang2'
 " Plug 'zchee/deoplete-clang'  " does not work at the moment, tim will fix it
 "
@@ -248,7 +265,9 @@ set expandtab
 set shiftwidth=2
 set softtabstop=2
 set ignorecase
+set incsearch
+set hlsearch
 
-let g:formatters_python = ['black']
+let g:formatters_python = ['yapf']
 let g:formatdef_yapf='"yapf  --style google"'
-let g:formatdef_clangformat= "'clang-format -style=Google'"
+let g:formatdef_clangformat= "'clang-format -style=file'"
