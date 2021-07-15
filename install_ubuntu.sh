@@ -14,10 +14,10 @@ mkdir -p ~/.config
 ln -sf `pwd`/nvim ~/.config/nvim
 
 echo "installing dependencies"
-sudo apt install python-dev python-pip python3-dev python3-pip ruby --yes
-sudo apt install python-neovim python3-neovim flake8 pylint python-pylint-django clang-format silversearcher-ag --yes
+sudo apt install python3-dev python3-pip python3-dev python3-pip ruby --yes
+sudo apt install python3-neovim python3-neovim flake8 pylint python3-pylint-django clang-format silversearcher-ag clang--yes
 sudo apt install build-essential tmux --yes
-pip install neovim yapf isort mypy isort black
+pip3 install neovim yapf isort mypy isort black
 
 echo "Installing xsel to be able to use the X clipboard"
 sudo apt-get install xsel --yes
