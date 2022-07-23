@@ -1,5 +1,17 @@
 
-function kineticbase {
- echo 'Setting noetic ws'
- source /opt/ros/noetic/setup.bash
+function _setup_colconcd {
+  source /usr/share/colcon_cd/function/colcon_cd.sh
+  export _colcon_cd_root=$1
+}
+
+function foxybase {
+ echo 'Setting foxy ws'
+ source /opt/ros/foxy/setup.bash
+ _setup_colconcd /opt/ros/foxy
+}
+
+function minews {
+ echo 'Setting mine ws'
+ source ~/work/mine/install/local_setup.bash
+ _setup_colconcd ~/work/mine
 }
