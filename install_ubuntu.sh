@@ -4,8 +4,7 @@ sudo apt update
 
 echo "Install neovim"
 if [ ! -f /usr/bin/nvim ]; then
-    sudo apt install python-software-properties software-properties-common --yes
-    sudo add-apt-repository ppa:neovim-ppa/stable
+    sudo add-apt-repository ppa:neovim-ppa/stable -y
     sudo apt update
     sudo apt install neovim --yes
 fi
