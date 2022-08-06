@@ -72,6 +72,9 @@ Plug 'Julian/vim-textobj-brace' " []{}() text obj > j
 Plug 'saihoooooooo/vim-textobj-space' " empty space with > S
 Plug 'whatyouhide/vim-textobj-xmlattr' " xml/html tags with > x
 Plug 'bps/vim-textobj-python' " python function /class with > f > c
+
+# Github copilot
+Plug 'github/copilot.vim'
 call plug#end()
 
 
