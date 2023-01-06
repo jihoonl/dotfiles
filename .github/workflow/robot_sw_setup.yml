@@ -1,0 +1,15 @@
+name: Robot Software Setup
+on:
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install robot_sw_setup
+        run: |
+          ./robot_sw_setup.sh
