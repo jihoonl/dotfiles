@@ -39,7 +39,7 @@ Plug 'beautify-web/js-beautify'
 " linting
 Plug 'psf/black', { 'branch': 'stable' }
 Plug 'Chiel92/vim-autoformat'  "Autoformatting
-Plug 'w0rp/ale' " Syntastic for neovim (works on buffers, not files, suck it neomake)
+"Plug 'w0rp/ale' " Syntastic for neovim (works on buffers, not files, suck it neomake)
 "Plug 'davidhalter/jedi-vim'  "python features for vim like jump to definition
 Plug 'ntpeters/vim-better-whitespace' "delete whitespaces
 Plug 'hynek/vim-python-pep8-indent' "Better intentat for .py files
@@ -74,7 +74,7 @@ Plug 'whatyouhide/vim-textobj-xmlattr' " xml/html tags with > x
 Plug 'bps/vim-textobj-python' " python function /class with > f > c
 
 " Github copilot
-Plug 'github/copilot.vim'
+"Plug 'github/copilot.vim'
 call plug#end()
 
 
@@ -172,19 +172,19 @@ let g:ale_linters = {'python': ['flake8']}
 highlight ALEErrorSign ctermfg=red ctermbg=235
 highlight ALEWArningSign ctermfg=yellow ctermbg=235
 let g:lightline = {
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'fugitive', 'filename' ] ]
-      \ },
-      \ 'component_function': {
-      \   'fugitive': 'LightlineFugitive',
-      \ },
-      \ 'component': {
-      \   'readonly': '%{&readonly?"\ue0a2":""}',
-      \ },
-      \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
-      \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" }
-      \ }
+     \ 'active': {
+     \   'left': [ [ 'mode', 'paste' ],
+     \             [ 'fugitive', 'filename' ] ]
+     \ },
+     \ 'component_function': {
+     \   'fugitive': 'LightlineFugitive',
+     \ },
+     \ 'component': {
+     \   'readonly': '%{&readonly?"\ue0a2":""}',
+     \ },
+     \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
+     \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" }
+     \ }
 "Custom filetypes
 au BufRead,BufNewFile *.launch		    set filetype=xml
 au BufRead,BufNewFile *.pddl            set filetype lisp
@@ -197,6 +197,18 @@ autocmd BufReadPost * if &ft != 'gitcommit' |
             \   exe "normal g`\"" |
             \ endif
 
+
+augroup commenting_blocks_of_code
+  autocmd!
+  autocmd FileType c,cpp,java,scala let b:comment_leader = '// '
+  autocmd FileType sh,ruby,python   let b:comment_leader = '# '
+  autocmd FileType conf,fstab       let b:comment_leader = '# '
+  autocmd FileType tex              let b:comment_leader = '% '
+  autocmd FileType mail             let b:comment_leader = '> '
+  autocmd FileType vim              let b:comment_leader = '" '
+augroup END
+noremap <silent> ,cc :<C-B>silent <C-E>s/^/<C-R>=escape(b:comment_leader,'\/')<CR>/<CR>:nohlsearch<CR>
+noremap <silent> ,cu :<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<CR>//e<CR>:nohlsearch<CR>
 
 
 
@@ -232,19 +244,10 @@ function! CheckLeftBuffers()
   endif
 endfunction
 
-function! SetShell()
-    let l:active_shell = system("echo $SHELL")
-    if (l:active_shell=~'bash')
-        set shell=bash\ --login
-    else
-        set shell=zsh\ -i
-    endif
-endfunction
-
 function! LightlineFugitive()
   if exists("*fugitive#head")
     let branch = fugitive#head()
-    return branch !=# '' ? "\ue0a0 ".branch : ''
+return branch !=# '' ? "\ue0a0 ".branch : ''
   endif
   return ''
 endfunction
@@ -272,5 +275,5 @@ set incsearch
 set hlsearch
 
 let g:formatters_python = ['yapf']
-let g:formatdef_yapf='"yapf  --style google"'
+let g:formatdef_yapf='"yapf"'
 let g:formatdef_clangformat= "'clang-format -style=file'"

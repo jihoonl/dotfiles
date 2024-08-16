@@ -51,4 +51,4 @@ ln -sf `pwd`/gitconfig ~/.gitconfig
 echo "Adding setup.cfg"
 ln -sf `pwd`/isort.cfg ~/.isort.cfg
 
-vim +UpdateRemotePlugins +PlugInstall +PlugStatus
+#vim +UpdateRemotePlugins +PlugInstall +PlugStatus
