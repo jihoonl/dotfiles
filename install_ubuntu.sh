@@ -11,6 +11,7 @@ fi
 
 mkdir -p ~/.config
 ln -sf `pwd`/nvim ~/.config/nvim
+ln -sf `pwd`/terminator ~/.config/terminator
 
 echo "installing dependencies"
 sudo apt install python3-dev python3-pip python3-dev python3-pip ruby --yes

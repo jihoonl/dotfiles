@@ -1,0 +1,27 @@
+[global_config]
+  enabled_plugins = LaunchpadBugURLHandler, LaunchpadCodeURLHandler, APTURLHandler, GroupBroadcastToggle
+  suppress_multiple_term_dialog = True
+[keybindings]
+  split_auto = ""
+  toggle_scrollbar = ""
+  broadcast_off = <Primary><Shift>s
+  broadcast_all = <Primary><Shift>a
+[profiles]
+  [[default]]
+    background_color = "#380c2a"
+    background_darkness = 0.96
+    background_type = transparent
+    cursor_fg_color = "#000000"
+    cursor_bg_color = "#aaaaaa"
+    font = Ubuntu Sans Mono 16
+    foreground_color = "#ffffff"
+    use_system_font = False
+[layouts]
+  [[default]]
+    [[[window0]]]
+      type = Window
+      parent = ""
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+[plugins]

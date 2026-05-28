@@ -19,7 +19,7 @@ endif
 
 " autocompletion
 " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'zchee/deoplete-jedi'
+"Plug 'zchee/deoplete-jedi'
 " Plug 'tweekmonster/deoplete-clang2'
 " Plug 'zchee/deoplete-clang'  " does not work at the moment, tim will fix it
 "
@@ -39,7 +39,7 @@ Plug 'beautify-web/js-beautify'
 " linting
 Plug 'psf/black', { 'branch': 'stable' }
 Plug 'Chiel92/vim-autoformat'  "Autoformatting
-Plug 'w0rp/ale' " Syntastic for neovim (works on buffers, not files, suck it neomake)
+"Plug 'w0rp/ale' " Syntastic for neovim (works on buffers, not files, suck it neomake)
 "Plug 'davidhalter/jedi-vim'  "python features for vim like jump to definition
 Plug 'ntpeters/vim-better-whitespace' "delete whitespaces
 Plug 'hynek/vim-python-pep8-indent' "Better intentat for .py files
@@ -273,4 +273,4 @@ set hlsearch
 
 let g:formatters_python = ['yapf']
 let g:formatdef_yapf='"yapf  --style google"'
-let g:formatdef_clangformat= "'clang-format -style=file'"
+let g:formatdef_clangformat= "'clang-format -style=Google'"
