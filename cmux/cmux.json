@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+  "paneBorderColor": "#333333",
+  "activePaneBorderColor": "#00afff",
+  "app": {
+    "appearance": "dark"
+  },
+  "sidebarAppearance": {
+    "matchTerminalBackground": true,
+    "tintOpacity": 0,
+    "darkModeTintColor": "#121212"
+  }
+}

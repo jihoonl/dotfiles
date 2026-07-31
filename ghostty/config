@@ -1,0 +1,4 @@
+# High-contrast terminal palette for cmux.
+theme = Molokai
+font-size = 15
+background-opacity = 1.0
