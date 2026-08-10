@@ -4,7 +4,7 @@ PROMPT='%F{green}%n@%m%f:%F{blue}%~%f$ '
 
 # Enable file-type colors for the macOS BSD ls command.
 export CLICOLOR=1
-export LSCOLORS='GxFxCxDxBxegedabagaced'
+export LSCOLORS="GxGxCxDxCxegedabagaced"
 alias ls='ls -G'
 alias l='ls -lahG'
 alias ll='ls -lhG'

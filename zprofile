@@ -5,4 +5,4 @@ elif [[ -x /usr/local/bin/brew ]]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-export PATH="${HOME}/.local/bin:${PATH}"
+export PATH="${HOME}/.local/share/nvim/venv/bin:${HOME}/.local/bin:${PATH}"

@@ -32,6 +32,8 @@ SKIP_PLUGINS=1 ~/.dotfiles/install_macos.sh
 - `ls` uses macOS file-type colors; `l` and `ll` provide detailed views.
 - `vi` and `vim` launch Neovim.
 - Neovim uses the Gruvbox colorscheme.
+- `:Autoformat` uses Ruff for Python and clang-format for C, C++, and Objective-C.
+- clang-format respects a project's `.clang-format` and falls back to Google style.
 - cmux uses the Molokai terminal palette at 15 pt with an opaque background.
 - cmux uses a dark frame, a blue active-pane border, and a sidebar matching the
   terminal background.

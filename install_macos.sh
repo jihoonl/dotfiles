@@ -107,11 +107,11 @@ if [[ "${SKIP_PYTHON_TOOLS:-0}" != "1" ]]; then
     mypy \
     pynvim \
     pylint \
-    tqdm \
-    yapf
+    ruff \
+    tqdm
 
   mkdir -p "${HOME}/.local/bin"
-  for tool in black blackd flake8 imgcat isort mypy mypyc pylint pyreverse symilar tqdm yapf yapf-diff; do
+  for tool in black blackd flake8 imgcat isort mypy mypyc pylint pyreverse ruff symilar tqdm; do
     if [[ -x "${NVIM_VENV}/bin/${tool}" ]]; then
       ln -sfn "${NVIM_VENV}/bin/${tool}" "${HOME}/.local/bin/${tool}"
     fi
@@ -123,7 +123,7 @@ fi
 
 if [[ "${SKIP_PLUGINS:-0}" != "1" ]]; then
   log "Installing Neovim plugins"
-  nvim --headless "+PlugInstall --sync" "+UpdateRemotePlugins" +qa
+  nvim --headless "+PlugInstall --sync" +qa
 fi
 
 log "Done"
