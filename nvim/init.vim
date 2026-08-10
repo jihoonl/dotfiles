@@ -38,12 +38,11 @@ Plug 'beautify-web/js-beautify'
 
 " linting
 Plug 'psf/black', { 'branch': 'stable' }
-Plug 'Chiel92/vim-autoformat'  "Autoformatting
 "Plug 'w0rp/ale' " Syntastic for neovim (works on buffers, not files, suck it neomake)
 "Plug 'davidhalter/jedi-vim'  "python features for vim like jump to definition
 Plug 'ntpeters/vim-better-whitespace' "delete whitespaces
 Plug 'hynek/vim-python-pep8-indent' "Better intentat for .py files
-Plug 'stsewd/isort.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug '~/work/tandem' "Tandem pair programming bridge, swap to 'jihoonl/tandem' once published
 
 " Colorschemes
 Plug 'morhetz/gruvbox' "
@@ -147,8 +146,6 @@ cnoremap <expr> <Left>  pumvisible() ? "\<Up>"    : "\<Left>"
 cnoremap <expr> <Right> pumvisible() ? "\<Down>"  : "\<Right>"
 
 "Plugin settings
-let g:isort_command = 'isort'
-
 let g:fzf_layout = {'down': '~20%'}
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
 autocmd BufEnter * call CheckLeftBuffers()
@@ -271,6 +268,36 @@ set ignorecase
 set incsearch
 set hlsearch
 
-let g:formatters_python = ['yapf']
-let g:formatdef_yapf='"yapf  --style google"'
-let g:formatdef_clangformat= "'clang-format -style=Google'"
+function! FormatBuffer()
+  let l:formatted = getline(1, '$')
+
+  if &filetype ==# 'python'
+    let l:path = shellescape(expand('%:p'))
+    let l:formatted = systemlist('ruff check --silent --select I --fix --stdin-filename ' . l:path . ' -', l:formatted)
+    if v:shell_error
+      echoerr 'Ruff import sorting failed'
+      return
+    endif
+    let l:command = 'ruff format --stdin-filename ' . l:path . ' -'
+  elseif index(['c', 'cpp', 'objc', 'objcpp'], &filetype) >= 0
+    let l:command = 'clang-format --style=file --fallback-style=Google --assume-filename=' . shellescape(expand('%:p'))
+  else
+    echoerr 'No formatter configured for ' . &filetype
+    return
+  endif
+
+  let l:formatted = systemlist(l:command, l:formatted)
+  if v:shell_error
+    echoerr 'Formatter failed: ' . join(l:formatted, "\n")
+    return
+  endif
+
+  let l:view = winsaveview()
+  call setline(1, l:formatted)
+  if line('$') > len(l:formatted)
+    execute (len(l:formatted) + 1) . ',$delete _'
+  endif
+  call winrestview(l:view)
+endfunction
+
+command! Autoformat call FormatBuffer()
