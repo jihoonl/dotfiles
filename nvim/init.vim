@@ -74,6 +74,9 @@ Plug 'bps/vim-textobj-python' " python function /class with > f > c
 
 " Github copilot
 Plug 'github/copilot.vim'
+
+" Tandem pair programming
+Plug '~/work/tandem/tandem'
 call plug#end()
 
 
