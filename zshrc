@@ -12,3 +12,8 @@ alias ll='ls -lhG'
 # Use Neovim for the traditional vi and vim commands.
 alias vi='nvim'
 alias vim='nvim'
+
+# Enable the completion system (git, brew, etc. ship their own completions).
+autoload -Uz compinit && compinit
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' menu select
