@@ -15,6 +15,7 @@
     cursor_bg_color = "#aaaaaa"
     font = Ubuntu Sans Mono 16
     foreground_color = "#ffffff"
+    scrollback_infinite = True
     use_system_font = False
 [layouts]
   [[default]]
