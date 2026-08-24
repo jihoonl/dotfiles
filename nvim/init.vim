@@ -37,8 +37,6 @@ Plug 'beautify-web/js-beautify'
 
 
 " linting
-Plug 'psf/black', { 'branch': 'stable' }
-"Plug 'w0rp/ale' " Syntastic for neovim (works on buffers, not files, suck it neomake)
 "Plug 'davidhalter/jedi-vim'  "python features for vim like jump to definition
 Plug 'ntpeters/vim-better-whitespace' "delete whitespaces
 Plug 'hynek/vim-python-pep8-indent' "Better intentat for .py files
@@ -136,7 +134,6 @@ nnoremap <leader>o :vsplit term://$SHELL<cr>i
 nnoremap <leader>pk :execute ':silent !pkill -f ' .expand('%:t')<cr>
 nnoremap <leader>h :History<cr>
 nnoremap <leader>f :Files<cr>
-nnoremap <leader>l :let b:ale_linters = {'python': ['flake8', 'pylint']}<cr>:ALELint<cr>
 nnoremap <leader>g :Ag
 nnoremap <leader>pa :set paste<cr>
 nnoremap <F3> :noh<cr>
@@ -163,14 +160,6 @@ let g:chapa_no_repeat_mappings = 1
 "let g:jedi#use_tabs_not_buffers = 1
 "let g:jedi#completions_enabled = 0
 "let g:jedi#show_call_signatures = "0"
-let g:ale_lint_delay = 1000
-let g:ale_sign_error = '✗'
-let g:ale_sign_warning = '⚠'
-let g:ale_python_flake8_options="--max-line-length=88"
-let g:ale_python_pylint_options="--max-line-length=88"
-let g:ale_linters = {'python': ['flake8']}
-highlight ALEErrorSign ctermfg=red ctermbg=235
-highlight ALEWArningSign ctermfg=yellow ctermbg=235
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
@@ -190,7 +179,6 @@ au BufRead,BufNewFile *.launch		    set filetype=xml
 au BufRead,BufNewFile *.pddl            set filetype lisp
 au BufRead,BufNewFile *.ino,*.pde       set filetype=cpp
 au BufRead,BufNewFile *.html            set filetype=htmlm4
-au BufRead,BufNewFile *.cpp             let g:ale_lint_on_text_changed = 'never'
 
 autocmd BufReadPost * if &ft != 'gitcommit' |
             \ if line("'\"") > 1 && line("'\"") <= line("$") |
