@@ -2,27 +2,29 @@
 
 Personal terminal and development configuration for macOS and Ubuntu.
 
-## macOS setup
+## Setup
 
-The installer supports both Apple Silicon and Intel Macs. It installs Homebrew,
-cmux, Neovim, tmux, Git, Python tooling, and the command-line utilities used by
-the editor configuration.
+One installer covers both platforms and picks apt or Homebrew from `uname`. It
+installs Neovim, tmux, Git, the command-line utilities used by the editor
+configuration, Claude Code with its plugins, and on macOS also Homebrew and
+cmux.
 
 ```sh
 git clone git@github.com:jihoonl/dotfiles.git ~/.dotfiles
-~/.dotfiles/install_macos.sh
+~/.dotfiles/install.sh
 ```
 
 Existing configuration files are moved to a timestamped directory under
-`~/.dotfiles-backup/` before symbolic links are created.
+`~/.dotfiles-backup/` before symbolic links are created, and re-running the
+installer is safe.
 
 Optional environment variables:
 
 ```sh
-SKIP_BREW_INSTALL=1 ~/.dotfiles/install_macos.sh
-SKIP_PACKAGES=1 ~/.dotfiles/install_macos.sh
-SKIP_PYTHON_TOOLS=1 ~/.dotfiles/install_macos.sh
-SKIP_PLUGINS=1 ~/.dotfiles/install_macos.sh
+SKIP_PACKAGES=1 ~/.dotfiles/install.sh
+SKIP_PYTHON_TOOLS=1 ~/.dotfiles/install.sh
+SKIP_PLUGINS=1 ~/.dotfiles/install.sh
+SKIP_BREW_INSTALL=1 ~/.dotfiles/install.sh   # macOS only
 ```
 
 ## macOS configuration
@@ -53,17 +55,9 @@ source ~/.zshrc
 | `nvim/` | `~/.config/nvim` |
 | `tmux.conf` | `~/.tmux.conf` |
 | `gitconfig` | `~/.gitconfig` |
-| `isort.cfg` | `~/.isort.cfg` |
-| `mypy/config` | `~/.config/mypy/config` |
-| `ghostty/config` | `~/.config/ghostty/config` |
-| `cmux/cmux.json` | `~/.config/cmux/cmux.json` |
-| `zprofile` | `~/.zprofile` |
-| `zshrc` | `~/.zshrc` |
-
-## Ubuntu
-
-The existing Ubuntu configuration can be installed with:
-
-```sh
-~/.dotfiles/install_ubuntu.sh
-```
+| `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
+| `terminator/` | `~/.config/terminator` (Ubuntu only) |
+| `ghostty/config` | `~/.config/ghostty/config` (macOS only) |
+| `cmux/cmux.json` | `~/.config/cmux/cmux.json` (macOS only) |
+| `zprofile` | `~/.zprofile` (macOS only) |
+| `zshrc` | `~/.zshrc` (macOS only) |
