@@ -117,6 +117,7 @@ link_dotfiles() {
   backup_and_link "${DOTFILES_DIR}/tmux.conf" "${HOME}/.tmux.conf"
   backup_and_link "${DOTFILES_DIR}/gitconfig" "${HOME}/.gitconfig"
   backup_and_link "${DOTFILES_DIR}/claude/CLAUDE.md" "${HOME}/.claude/CLAUDE.md"
+  backup_and_link "${DOTFILES_DIR}/herdr/config.toml" "${HOME}/.config/herdr/config.toml"
 
   if [[ "${OS}" == "Darwin" ]]; then
     backup_and_link "${DOTFILES_DIR}/ghostty/config" "${HOME}/.config/ghostty/config"
@@ -152,6 +153,19 @@ install_claude() {
                 ponytail@ponytail; do
     claude plugin install -y "${plugin}"
   done
+}
+
+install_herdr() {
+  if ! command -v herdr >/dev/null 2>&1; then
+    log "Installing herdr"
+    curl -fsSL https://herdr.dev/install.sh | sh
+  fi
+  export PATH="${HOME}/.local/bin:${PATH}"
+  command -v herdr >/dev/null 2>&1 || die "herdr is not on PATH after install"
+
+  # Lifecycle state detection for Claude panes, beyond screen scraping.
+  log "Installing the herdr Claude Code integration"
+  herdr integration install claude
 }
 
 # A venv keeps these off the system python, which Ubuntu refuses to touch
@@ -201,6 +215,7 @@ esac
 
 link_dotfiles
 install_claude
+install_herdr
 [[ "${SKIP_PYTHON_TOOLS:-0}" == "1" ]] || install_python_tools
 [[ "${SKIP_PLUGINS:-0}" == "1" ]] || install_nvim_plugins
 

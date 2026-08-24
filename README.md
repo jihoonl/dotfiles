@@ -6,8 +6,8 @@ Personal terminal and development configuration for macOS and Ubuntu.
 
 One installer covers both platforms and picks apt or Homebrew from `uname`. It
 installs Neovim, tmux, Git, the command-line utilities used by the editor
-configuration, Claude Code with its plugins, and on macOS also Homebrew and
-cmux.
+configuration, Claude Code with its plugins, herdr with its Claude
+integration, and on macOS also Homebrew and cmux.
 
 ```sh
 git clone git@github.com:jihoonl/dotfiles.git ~/.dotfiles
@@ -56,6 +56,7 @@ source ~/.zshrc
 | `tmux.conf` | `~/.tmux.conf` |
 | `gitconfig` | `~/.gitconfig` |
 | `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
+| `herdr/config.toml` | `~/.config/herdr/config.toml` |
 | `terminator/` | `~/.config/terminator` (Ubuntu only) |
 | `ghostty/config` | `~/.config/ghostty/config` (macOS only) |
 | `cmux/cmux.json` | `~/.config/cmux/cmux.json` (macOS only) |
