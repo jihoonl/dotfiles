@@ -53,3 +53,31 @@ echo "Adding setup.cfg"
 ln -sf `pwd`/isort.cfg ~/.isort.cfg
 
 vim +UpdateRemotePlugins +PlugInstall +PlugStatus
+
+echo "Adding claude config"
+mkdir -p ~/.claude
+ln -sf `pwd`/claude/CLAUDE.md ~/.claude/CLAUDE.md
+
+echo "Installing claude code"
+if ! command -v claude >/dev/null; then
+    curl -fsSL https://claude.ai/install.sh | bash
+fi
+export PATH="$HOME/.local/bin:$PATH"
+
+echo "Installing claude plugins"
+if command -v claude >/dev/null; then
+    claude plugin marketplace add tobi/qmd
+    claude plugin marketplace add DietrichGebert/ponytail
+    for p in github@claude-plugins-official \
+             claude-md-management@claude-plugins-official \
+             security-guidance@claude-plugins-official \
+             superpowers@claude-plugins-official \
+             code-review@claude-plugins-official \
+             commit-commands@claude-plugins-official \
+             clangd-lsp@claude-plugins-official \
+             chrome-devtools-mcp@claude-plugins-official \
+             qmd@qmd \
+             ponytail@ponytail; do
+        claude plugin install -y "$p"
+    done
+fi
