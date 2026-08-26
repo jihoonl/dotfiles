@@ -65,6 +65,7 @@ install_packages_macos() {
     clang-format \
     cmake \
     git \
+    jq \
     neovim \
     python \
     the_silver_searcher \
@@ -96,6 +97,7 @@ install_packages_linux() {
     cmake \
     cmake-curses-gui \
     fonts-powerline \
+    jq \
     neovim \
     python3-dev \
     python3-venv \
@@ -116,7 +118,10 @@ link_dotfiles() {
   backup_and_link "${DOTFILES_DIR}/nvim" "${HOME}/.config/nvim"
   backup_and_link "${DOTFILES_DIR}/tmux.conf" "${HOME}/.tmux.conf"
   backup_and_link "${DOTFILES_DIR}/gitconfig" "${HOME}/.gitconfig"
-  backup_and_link "${DOTFILES_DIR}/claude/CLAUDE.md" "${HOME}/.claude/CLAUDE.md"
+  backup_and_link "${DOTFILES_DIR}/agents/AGENTS.md" "${HOME}/.claude/CLAUDE.md"
+  backup_and_link "${DOTFILES_DIR}/agents/CPP.md" "${HOME}/.claude/CPP.md"
+  backup_and_link "${DOTFILES_DIR}/agents/AGENTS.md" "${HOME}/.codex/AGENTS.md"
+  backup_and_link "${DOTFILES_DIR}/agents/CPP.md" "${HOME}/.codex/CPP.md"
   backup_and_link "${DOTFILES_DIR}/herdr/config.toml" "${HOME}/.config/herdr/config.toml"
 
   if [[ "${OS}" == "Darwin" ]]; then
@@ -127,6 +132,27 @@ link_dotfiles() {
   else
     backup_and_link "${DOTFILES_DIR}/terminator" "${HOME}/.config/terminator"
   fi
+}
+
+# Hook configs live inside larger machine-local files (~/.claude/settings.json,
+# ~/.codex/hooks.json), so they are merged with jq instead of symlinked.
+merge_hook_entry() {
+  local target="$1"
+  local fragment="$2"
+
+  mkdir -p "$(dirname -- "${target}")"
+  [[ -f "${target}" ]] || printf '{}\n' > "${target}"
+  jq --slurpfile entry "${fragment}" \
+    '.hooks.PreToolUse = ((.hooks.PreToolUse // []) | map(select(.matcher != $entry[0].matcher))) + [$entry[0]]' \
+    "${target}" > "${target}.tmp"
+  mv "${target}.tmp" "${target}"
+  printf 'hook merged: %s\n' "${target}"
+}
+
+merge_agent_hooks() {
+  log "Merging C++ guide hooks"
+  merge_hook_entry "${HOME}/.claude/settings.json" "${DOTFILES_DIR}/agents/hooks/claude-cpp-guide.json"
+  merge_hook_entry "${HOME}/.codex/hooks.json" "${DOTFILES_DIR}/agents/hooks/codex-cpp-guide.json"
 }
 
 install_claude() {
@@ -214,6 +240,7 @@ case "${OS}" in
 esac
 
 link_dotfiles
+merge_agent_hooks
 install_claude
 install_herdr
 [[ "${SKIP_PYTHON_TOOLS:-0}" == "1" ]] || install_python_tools

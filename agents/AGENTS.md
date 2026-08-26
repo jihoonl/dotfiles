@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 Guidelines to reduce common coding mistakes. Bias toward caution over speed; use judgment on trivial tasks.
 
@@ -24,6 +24,14 @@ Guidelines to reduce common coding mistakes. Bias toward caution over speed; use
 
 ## 5. Worktree for New Work
 - Starting new development (feature/fix branch)? Create it as a git worktree under
-  the repo's `.claude/worktrees/<branch-name>` and work there — not in the main checkout.
-- Ensure `.claude` (or `.claude/worktrees/`) is gitignored in that repo first.
+  the repo's `.worktrees/<branch-name>` and work there — not in the main checkout.
+- Ensure `.worktrees/` is gitignored in that repo first.
 - Small edits to the current branch, questions, and reviews: stay put.
+
+## 6. Guide-First Development
+- When the user says to start development, default to a line-by-line implementation guide with exact files, edit locations, and code; let the user make the changes.
+- Create worktrees or modify files only when the user explicitly asks you to make or apply the changes directly.
+- Exception: test code — write and apply it directly yourself; only the implementation goes through the guide.
+
+## 7. C++ Development
+- When working on C++, read and follow `CPP.md` in the same directory as this file.

@@ -1,0 +1,10 @@
+{
+  "matcher": "Edit|Write|Read",
+  "hooks": [
+    {
+      "type": "command",
+      "command": "IN=$(cat); f=$(printf %s \"$IN\" | jq -r '.tool_input.file_path // empty'); case \"$f\" in *.cpp|*.cc|*.cxx|*.hpp|*.hh|*.hxx|*.h|*.inl|*.ipp) s=$(printf %s \"$IN\" | jq -r '.session_id // empty'); if [ -n \"$s\" ]; then m=\"/tmp/cppmd-claude-$s\"; [ -e \"$m\" ] && exit 0; touch \"$m\"; fi; [ -f \"$HOME/.claude/CPP.md\" ] && jq -n --rawfile g \"$HOME/.claude/CPP.md\" '{hookSpecificOutput:{hookEventName:\"PreToolUse\",additionalContext:(\"You are working on C++ code. Follow this guide (~/.claude/CPP.md):\\n\\n\"+$g)}}' || :;; esac",
+      "timeout": 10
+    }
+  ]
+}

@@ -55,7 +55,8 @@ source ~/.zshrc
 | `nvim/` | `~/.config/nvim` |
 | `tmux.conf` | `~/.tmux.conf` |
 | `gitconfig` | `~/.gitconfig` |
-| `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
+| `agents/AGENTS.md` | `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` |
+| `agents/CPP.md` | `~/.claude/CPP.md`, `~/.codex/CPP.md` |
 | `herdr/config.toml` | `~/.config/herdr/config.toml` |
 | `terminator/` | `~/.config/terminator` (Ubuntu only) |
 | `ghostty/config` | `~/.config/ghostty/config` (macOS only) |

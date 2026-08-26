@@ -1,0 +1,10 @@
+{
+  "matcher": "^(apply_patch|write|Write|edit|Edit|multi_edit|MultiEdit|read|Read|read_file|shell|local_shell|exec_command|bash)$",
+  "hooks": [
+    {
+      "type": "command",
+      "command": "IN=$(cat); c=$(printf %s \"$IN\" | jq -r '.tool_input as $t | ([$t.file_path // empty] + [(($t.command // \"\") | if type==\"array\" then join(\" \") else tostring end)] + ((($t.input // $t.patch // \"\") | split(\"\\n\")) | map(select(startswith(\"*** \"))))) | .[]'); if printf %s \"$c\" | grep -qE '\\.(cpp|cc|cxx|hpp|hh|hxx|h|inl|ipp)([^A-Za-z0-9_.]|$)'; then s=$(printf %s \"$IN\" | jq -r '.session_id // empty'); if [ -n \"$s\" ]; then m=\"/tmp/cppmd-codex-$s\"; [ -e \"$m\" ] && exit 0; touch \"$m\"; fi; [ -f \"$HOME/.codex/CPP.md\" ] && jq -n --rawfile g \"$HOME/.codex/CPP.md\" '{hookSpecificOutput:{hookEventName:\"PreToolUse\",additionalContext:(\"You are working on C++ code. Follow this guide (~/.codex/CPP.md):\\n\\n\"+$g)}}' || :; fi",
+      "timeout": 10
+    }
+  ]
+}
