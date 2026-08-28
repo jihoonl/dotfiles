@@ -153,6 +153,13 @@ merge_agent_hooks() {
   log "Merging C++ guide hooks"
   merge_hook_entry "${HOME}/.claude/settings.json" "${DOTFILES_DIR}/agents/hooks/claude-cpp-guide.json"
   merge_hook_entry "${HOME}/.codex/hooks.json" "${DOTFILES_DIR}/agents/hooks/codex-cpp-guide.json"
+
+  # Claude auto-memory lives in the llm-wiki repo so it follows the user across
+  # machines (git) and projects (one shared directory).
+  [[ -d "${HOME}/.wiki/personal-wiki" ]] || git clone git@github.com:jihoonl/llm-wiki.git "${HOME}/.wiki/personal-wiki"
+  jq '.autoMemoryDirectory = "~/.wiki/personal-wiki/memory"' "${HOME}/.claude/settings.json" \
+    > "${HOME}/.claude/settings.json.tmp"
+  mv "${HOME}/.claude/settings.json.tmp" "${HOME}/.claude/settings.json"
 }
 
 install_claude() {
