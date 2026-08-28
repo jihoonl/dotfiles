@@ -30,8 +30,10 @@ Guidelines to reduce common coding mistakes. Bias toward caution over speed; use
 
 ## 6. Guide-First Development
 - When the user says to start development, default to a line-by-line implementation guide with exact files, edit locations, and code; let the user make the changes.
+- Structure the guide like a human develops, not as a per-file edit list: start from the entry point / main flow, descend outward-in step by step, and cut each step as a buildable, verifiable increment (with its build command or runtime check). Includes, members, and build changes belong to the step that needs them.
 - Create worktrees or modify files only when the user explicitly asks you to make or apply the changes directly.
 - Exception: test code — write and apply it directly yourself; only the implementation goes through the guide.
+- Running inside herdr (`herdr pane current` succeeds)? Read and follow `herdr.md` in the same directory as this file — guide by watching the user's pane.
 
 ## 7. C++ Development
 - When working on C++, read and follow `CPP.md` in the same directory as this file.
