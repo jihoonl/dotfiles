@@ -157,6 +157,9 @@ merge_agent_hooks() {
   # Claude auto-memory lives in the llm-wiki repo so it follows the user across
   # machines (git) and projects (one shared directory).
   [[ -d "${HOME}/.wiki/personal-wiki" ]] || git clone git@github.com:jihoonl/llm-wiki.git "${HOME}/.wiki/personal-wiki"
+
+  # Personal Claude skills are their own repo, checked out as ~/.claude/skills.
+  [[ -d "${HOME}/.claude/skills" ]] || git clone git@github.com:jihoonl/personal-skills.git "${HOME}/.claude/skills"
   jq '.autoMemoryDirectory = "~/.wiki/personal-wiki/memory"' "${HOME}/.claude/settings.json" \
     > "${HOME}/.claude/settings.json.tmp"
   mv "${HOME}/.claude/settings.json.tmp" "${HOME}/.claude/settings.json"
