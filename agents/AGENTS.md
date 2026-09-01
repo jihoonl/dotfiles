@@ -25,6 +25,8 @@ Guidelines to reduce common coding mistakes. Bias toward caution over speed; use
 ## 5. Worktree for New Work
 - Starting new development (feature/fix branch)? Create it as a git worktree under
   the repo's `.worktrees/<branch-name>` and work there — not in the main checkout.
+- Branch names must follow the repo's convention — check its CI branch-name rules
+  before creating. Never rename a branch after its PR is open; GitHub may close the PR.
 - Ensure `.worktrees/` is gitignored in that repo first.
 - Small edits to the current branch, questions, and reviews: stay put.
 
