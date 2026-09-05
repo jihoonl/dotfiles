@@ -20,3 +20,17 @@ zstyle ':completion:*' menu select
 eval "$(hdayctl completion zsh)"
 export PATH="/Users/jihoonl/.devcontainers/bin:$PATH"
 
+# herdr in a standalone Ghostty window. cmux keeps ⌘ for itself, so herdr only
+# gets it here: ghostty/herdr.conf translates each ⌘ chord into herdr's prefix
+# sequence. ⌘Q still quits Ghostty; detach with ⌃B q.
+herdr-holiday-desktop() {
+  open -na Ghostty.app --args \
+    --config-file="${HOME}/.config/ghostty/herdr.conf" \
+    -e herdr --remote holiday-desktop
+}
+
+# Node via nvm. install.sh also symlinks node/npm/npx into ~/.local/bin so that
+# non-interactive consumers (Claude Code plugin hooks, MCP servers) find them
+# without sourcing this file; loading nvm here is for `nvm install` and friends.
+export NVM_DIR="${HOME}/.nvm"
+[ -s "${NVM_DIR}/nvm.sh" ] && . "${NVM_DIR}/nvm.sh"

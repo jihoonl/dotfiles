@@ -7,7 +7,7 @@ Personal terminal and development configuration for macOS and Ubuntu.
 One installer covers both platforms and picks apt or Homebrew from `uname`. It
 installs Neovim, tmux, Git, the command-line utilities used by the editor
 configuration, Claude Code with its plugins, herdr with its Claude
-integration, and on macOS also Homebrew and cmux.
+integration, and on macOS also Homebrew, cmux, and Ghostty.
 
 ```sh
 git clone git@github.com:jihoonl/dotfiles.git ~/.dotfiles
@@ -40,6 +40,27 @@ SKIP_BREW_INSTALL=1 ~/.dotfiles/install.sh   # macOS only
 - cmux uses a dark frame, a blue active-pane border, and a sidebar matching the
   terminal background.
 
+## herdr on macOS
+
+cmux is the local workspace manager; herdr is used for the remote session on
+the Ubuntu box. They cannot share a window: cmux owns every Cmd chord and
+presents `TERM=xterm-256color`, which drops herdr to legacy key encoding where
+no Cmd chord can be delivered at all. Under a standalone Ghostty window herdr
+gets `TERM=xterm-ghostty` and the Kitty keyboard protocol, so the Cmd
+bindings in `herdr/config.toml` work the same as they do on Ubuntu.
+
+Open that window with the zsh function:
+
+```sh
+herdr-holiday-desktop
+```
+
+It launches Ghostty with `ghostty/herdr.conf` layered on top of the shared
+Ghostty config. That file only releases the Cmd chords Ghostty binds itself,
+so herdr can receive them; cmux never loads it and keeps its own shortcuts.
+
+Detach from herdr with `Ctrl-B q`. `Cmd-Q` still quits Ghostty.
+
 After changing cmux or Ghostty settings, reload them with `Command-Shift-,`.
 Existing shells can reload zsh settings with:
 
@@ -60,6 +81,7 @@ source ~/.zshrc
 | `herdr/config.toml` | `~/.config/herdr/config.toml` |
 | `terminator/` | `~/.config/terminator` (Ubuntu only) |
 | `ghostty/config` | `~/.config/ghostty/config` (macOS only) |
+| `ghostty/herdr.conf` | `~/.config/ghostty/herdr.conf` (macOS only) |
 | `cmux/cmux.json` | `~/.config/cmux/cmux.json` (macOS only) |
 | `zprofile` | `~/.zprofile` (macOS only) |
 | `zshrc` | `~/.zshrc` (macOS only) |

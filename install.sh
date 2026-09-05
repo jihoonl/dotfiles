@@ -82,6 +82,15 @@ install_packages_macos() {
   else
     printf 'already installed: cmux\n'
   fi
+
+  # herdr runs in a standalone Ghostty window, not in cmux: only Ghostty
+  # encodes Cmd chords for it. See ghostty/herdr.conf.
+  if [[ ! -d /Applications/Ghostty.app && ! -d "${HOME}/Applications/Ghostty.app" ]]; then
+    log "Installing Ghostty"
+    brew install --cask ghostty
+  else
+    printf 'already installed: Ghostty\n'
+  fi
 }
 
 install_packages_linux() {
@@ -123,10 +132,16 @@ link_dotfiles() {
   backup_and_link "${DOTFILES_DIR}/agents/CPP.md" "${HOME}/.claude/CPP.md"
   backup_and_link "${DOTFILES_DIR}/agents/AGENTS.md" "${HOME}/.codex/AGENTS.md"
   backup_and_link "${DOTFILES_DIR}/agents/CPP.md" "${HOME}/.codex/CPP.md"
+  backup_and_link "${DOTFILES_DIR}/agents/herdr.md" "${HOME}/.claude/herdr.md"
+  backup_and_link "${DOTFILES_DIR}/agents/herdr.md" "${HOME}/.codex/herdr.md"
+  backup_and_link "${DOTFILES_DIR}/agents/cmux.md" "${HOME}/.claude/cmux.md"
+  backup_and_link "${DOTFILES_DIR}/agents/cmux.md" "${HOME}/.codex/cmux.md"
+
   backup_and_link "${DOTFILES_DIR}/herdr/config.toml" "${HOME}/.config/herdr/config.toml"
 
   if [[ "${OS}" == "Darwin" ]]; then
     backup_and_link "${DOTFILES_DIR}/ghostty/config" "${HOME}/.config/ghostty/config"
+    backup_and_link "${DOTFILES_DIR}/ghostty/herdr.conf" "${HOME}/.config/ghostty/herdr.conf"
     backup_and_link "${DOTFILES_DIR}/cmux/cmux.json" "${HOME}/.config/cmux/cmux.json"
     backup_and_link "${DOTFILES_DIR}/zshrc" "${HOME}/.zshrc"
     backup_and_link "${DOTFILES_DIR}/zprofile" "${HOME}/.zprofile"
