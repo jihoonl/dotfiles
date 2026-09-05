@@ -17,3 +17,6 @@ alias vim='nvim'
 autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' menu select
+eval "$(hdayctl completion zsh)"
+export PATH="/Users/jihoonl/.devcontainers/bin:$PATH"
+
