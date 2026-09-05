@@ -217,6 +217,17 @@ install_claude() {
                 ponytail@ponytail; do
     claude plugin install -y "${plugin}"
   done
+
+  # The llm-wiki skill mirrors wikis to the personal Notion workspace and names
+  # the server in each wiki's .notion.json, so the registration must use this
+  # exact name. OAuth is interactive: finish it with /mcp inside Claude Code.
+  log "Registering the notion-personal MCP server"
+  if claude mcp get notion-personal >/dev/null 2>&1; then
+    printf 'already registered: notion-personal\n'
+  else
+    claude mcp add --transport http --scope user \
+      notion-personal https://mcp.notion.com/mcp
+  fi
 }
 
 install_herdr() {
