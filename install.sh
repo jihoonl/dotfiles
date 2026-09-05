@@ -6,6 +6,9 @@ readonly DOTFILES_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly BACKUP_DIR="${HOME}/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 readonly NVIM_VENV="${HOME}/.local/share/nvim/venv"
 readonly NVM_VERSION="v0.40.7"
+# Share of the host each colima instance gets.
+readonly COLIMA_CPU_PERCENT="${COLIMA_CPU_PERCENT:-50}"
+readonly COLIMA_MEMORY_PERCENT="${COLIMA_MEMORY_PERCENT:-50}"
 readonly OS="$(uname -s)"
 
 log() {
@@ -267,8 +270,8 @@ install_node() {
 # creation time.
 install_colima_profiles() {
   local cpus mem
-  cpus=$(( $(sysctl -n hw.ncpu) / 2 ))
-  mem=$(( $(sysctl -n hw.memsize) / 1073741824 / 2 ))
+  cpus=$(( $(sysctl -n hw.ncpu) * COLIMA_CPU_PERCENT / 100 ))
+  mem=$(( $(sysctl -n hw.memsize) * COLIMA_MEMORY_PERCENT / 100 / 1073741824 ))
 
   if [[ -f "${HOME}/.colima/default/colima.yaml" ]]; then
     printf 'already created: colima default\n'

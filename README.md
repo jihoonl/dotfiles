@@ -26,6 +26,8 @@ SKIP_PYTHON_TOOLS=1 ~/.dotfiles/install.sh
 SKIP_PLUGINS=1 ~/.dotfiles/install.sh
 SKIP_BREW_INSTALL=1 ~/.dotfiles/install.sh   # macOS only
 SKIP_COLIMA=1 ~/.dotfiles/install.sh         # macOS only
+COLIMA_CPU_PERCENT=25 ~/.dotfiles/install.sh     # macOS only
+COLIMA_MEMORY_PERCENT=25 ~/.dotfiles/install.sh  # macOS only
 ```
 
 ## macOS configuration
@@ -45,7 +47,8 @@ SKIP_COLIMA=1 ~/.dotfiles/install.sh         # macOS only
 
 Docker runs in two colima VMs, created by the installer if they are missing:
 `default` builds arm64 images and `x86` builds amd64 ones through Rosetta.
-Both get half the host's cores and half its memory.
+Both get a percentage of the host's cores and memory, 50 by default;
+`COLIMA_CPU_PERCENT` and `COLIMA_MEMORY_PERCENT` change it.
 
 ```sh
 docker context use colima          # arm64
@@ -55,8 +58,8 @@ docker context use colima-x86      # amd64
 Creating an instance boots it, which takes minutes, so `SKIP_COLIMA=1` skips
 this step; an instance that already exists is never touched. Only `default` is
 left running -- `x86` is stopped after it is created, since amd64 builds are
-occasional and on a small Mac the two together commit more memory than the
-host has. Start it when needed with `colima start x86`. Rosetta 2 is installed
+occasional and at 50 percent each the two together would commit the whole
+host. Start it when needed with `colima start x86`. Rosetta 2 is installed
 first if it is missing, which asks for a password.
 
 `colima/template.yaml` supplies defaults that have no start flag -- currently
