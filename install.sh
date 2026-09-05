@@ -5,6 +5,7 @@ set -Eeuo pipefail
 readonly DOTFILES_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly BACKUP_DIR="${HOME}/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 readonly NVIM_VENV="${HOME}/.local/share/nvim/venv"
+readonly NVM_VERSION="v0.40.7"
 readonly OS="$(uname -s)"
 
 log() {
@@ -204,6 +205,41 @@ install_herdr() {
   herdr integration install claude
 }
 
+# Claude Code plugin hooks (ponytail) and MCP servers (qmd, chrome-devtools)
+# shell out to node/npx, so a Node runtime is not optional here.
+install_node() {
+  if [[ -s "${HOME}/.nvm/nvm.sh" ]]; then
+    printf 'already installed: nvm\n'
+  else
+    log "Installing nvm"
+    # PROFILE=/dev/null: the shell profile is a symlink into this repo, and the
+    # nvm init lines already live in zshrc.
+    PROFILE=/dev/null bash -c \
+      "$(curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh)"
+  fi
+
+  export NVM_DIR="${HOME}/.nvm"
+  # shellcheck disable=SC1091
+  . "${NVM_DIR}/nvm.sh"
+  nvm install --lts
+  nvm alias default 'lts/*'
+
+  # Hooks and MCP servers run under /bin/sh with the PATH they inherit, which
+  # never includes nvm's shell-function-managed bin directory. Symlinks into
+  # ~/.local/bin give them a stable path, as install_python_tools does.
+  log "Installing qmd for the Claude Code markdown search plugin"
+  npm install -g \
+    --allow-scripts=node-llama-cpp,tree-sitter-go,tree-sitter-python,tree-sitter-rust,tree-sitter-typescript,tree-sitter-javascript \
+    @tobilu/qmd
+
+  mkdir -p "${HOME}/.local/bin"
+  local node_bin tool
+  node_bin="$(dirname "$(nvm which current)")"
+  for tool in node npm npx qmd; do
+    ln -sfn "${node_bin}/${tool}" "${HOME}/.local/bin/${tool}"
+  done
+}
+
 # A venv keeps these off the system python, which Ubuntu refuses to touch
 # (PEP 668) and Homebrew python only tolerates.
 install_python_tools() {
@@ -253,6 +289,7 @@ link_dotfiles
 merge_agent_hooks
 install_claude
 install_herdr
+[[ "${SKIP_NODE:-0}" == "1" ]] || install_node
 [[ "${SKIP_PYTHON_TOOLS:-0}" == "1" ]] || install_python_tools
 [[ "${SKIP_PLUGINS:-0}" == "1" ]] || install_nvim_plugins
 
