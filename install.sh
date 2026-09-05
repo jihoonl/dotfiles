@@ -182,6 +182,10 @@ merge_agent_hooks() {
   # machines (git) and projects (one shared directory).
   [[ -d "${HOME}/.wiki/personal-wiki" ]] || git clone git@github.com:jihoonl/llm-wiki.git "${HOME}/.wiki/personal-wiki"
 
+  # The paper wiki (robotics/RL/VLA) is its own repo: curated pages plus the raw
+  # PDFs, so the corpus travels with the machine.
+  [[ -d "${HOME}/.wiki/paper-wiki" ]] || git clone git@github.com:jihoonl/paper-wiki.git "${HOME}/.wiki/paper-wiki"
+
   # Personal Claude skills are their own repo, checked out as ~/.claude/skills.
   [[ -d "${HOME}/.claude/skills" ]] || git clone git@github.com:jihoonl/personal-skills.git "${HOME}/.claude/skills"
   jq '.autoMemoryDirectory = "~/.wiki/personal-wiki/memory"' "${HOME}/.claude/settings.json" \
