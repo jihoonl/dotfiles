@@ -279,10 +279,21 @@ install_colima_profiles() {
 
   if [[ -f "${HOME}/.colima/x86/colima.yaml" ]]; then
     printf 'already created: colima x86\n'
-  else
-    log "Creating the colima x86 profile (amd64 through Rosetta)"
-    colima start x86 --cpu "${cpus}" --memory "${mem}" --vz-rosetta
+    return
   fi
+
+  # --vz-rosetta needs Rosetta 2, which is a separate component and is absent
+  # on a fresh Apple Silicon Mac.
+  if [[ ! -d /Library/Apple/usr/share/rosetta ]]; then
+    log "Installing Rosetta 2 for the colima x86 profile"
+    sudo softwareupdate --install-rosetta --agree-to-license
+  fi
+
+  log "Creating the colima x86 profile (amd64 through Rosetta)"
+  colima start x86 --cpu "${cpus}" --memory "${mem}" --vz-rosetta
+  # Leave only the arm64 instance running: amd64 builds are occasional, and on
+  # a small Mac both instances together commit more memory than the host has.
+  colima stop x86
 }
 
 # A venv keeps these off the system python, which Ubuntu refuses to touch

@@ -53,7 +53,11 @@ docker context use colima-x86      # amd64
 ```
 
 Creating an instance boots it, which takes minutes, so `SKIP_COLIMA=1` skips
-this step; an instance that already exists is never touched.
+this step; an instance that already exists is never touched. Only `default` is
+left running -- `x86` is stopped after it is created, since amd64 builds are
+occasional and on a small Mac the two together commit more memory than the
+host has. Start it when needed with `colima start x86`. Rosetta 2 is installed
+first if it is missing, which asks for a password.
 
 `colima/template.yaml` supplies defaults that have no start flag -- currently
 the robot's insecure registry. A template is read only when an instance is
