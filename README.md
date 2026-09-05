@@ -24,6 +24,7 @@ Optional environment variables:
 SKIP_PACKAGES=1 ~/.dotfiles/install.sh
 SKIP_PYTHON_TOOLS=1 ~/.dotfiles/install.sh
 SKIP_PLUGINS=1 ~/.dotfiles/install.sh
+SKIP_NODE=1 ~/.dotfiles/install.sh
 SKIP_BREW_INSTALL=1 ~/.dotfiles/install.sh   # macOS only
 SKIP_COLIMA=1 ~/.dotfiles/install.sh         # macOS only
 COLIMA_CPU_PERCENT=25 ~/.dotfiles/install.sh     # macOS only
@@ -87,6 +88,21 @@ Ghostty config. That file only releases the Cmd chords Ghostty binds itself,
 so herdr can receive them; cmux never loads it and keeps its own shortcuts.
 
 Detach from herdr with `Ctrl-B q`. `Cmd-Q` still quits Ghostty.
+
+The function wraps `herdr --remote holiday-desktop`, which needs a matching
+`~/.ssh/config` host entry; ssh configuration is not managed here. Another
+host, or a named session beside the default one:
+
+```sh
+herdr --remote <host>
+herdr --remote <host> --session <name>
+```
+
+Attach this way rather than running `herdr` over a plain `ssh` session.
+`--remote-keybindings` defaults to `local`, so the keys come from this Mac's
+`herdr/config.toml` even though the panes run on the remote host; over plain
+ssh the server's own config applies instead. The keys are a snapshot taken
+when the client attaches, so detach and reattach after editing them.
 
 After changing cmux or Ghostty settings, reload them with `Command-Shift-,`.
 Existing shells can reload zsh settings with:
