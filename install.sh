@@ -267,6 +267,42 @@ install_node() {
   done
 }
 
+# qmd's index and collection list are machine-local (~/.cache/qmd,
+# ~/.config/qmd) rather than dotfiles, so every machine indexes the wikis
+# itself. Skippable because `qmd embed` downloads embedding models the first
+# time, which is slow on a fresh machine.
+index_wikis() {
+  # install_node symlinks qmd here, but ~/.local/bin may not be on PATH yet.
+  export PATH="${HOME}/.local/bin:${PATH}"
+  local ensure="${HOME}/.claude/skills/llm-wiki/scripts/ensure_collection.sh"
+
+  if ! command -v qmd >/dev/null 2>&1; then
+    printf 'skipping wiki index: qmd not installed\n'
+    return
+  fi
+  if [[ ! -f "${ensure}" ]]; then
+    printf 'skipping wiki index: %s missing\n' "${ensure}"
+    return
+  fi
+
+  log "Indexing wikis for qmd"
+  local wiki
+  for wiki in personal-wiki paper-wiki; do
+    if [[ -d "${HOME}/.wiki/${wiki}/wiki" ]]; then
+      bash "${ensure}" "${HOME}/.wiki/${wiki}"
+    fi
+  done
+
+  # ensure_collection.sh only indexes <wiki-root>/wiki. The paper wiki's
+  # extracted PDF text is a second collection that deep queries fall back to.
+  local extracted="${HOME}/.wiki/paper-wiki/raw/extracted"
+  if [[ -d "${extracted}" ]] \
+    && ! qmd collection list 2>/dev/null | awk '{print $1}' | grep -qxF paper-wiki-extracted; then
+    qmd collection add "${extracted}" --name paper-wiki-extracted
+    qmd embed -c paper-wiki-extracted || printf 'qmd embed failed (lexical search still works)\n' >&2
+  fi
+}
+
 # Docker on macOS runs in colima VMs: `default` builds arm64 images and `x86`
 # builds amd64 ones through Rosetta. Creating an instance boots it, which takes
 # minutes, so this is skippable and never touches an instance that exists.
@@ -353,6 +389,7 @@ merge_agent_hooks
 install_claude
 install_herdr
 [[ "${SKIP_NODE:-0}" == "1" ]] || install_node
+[[ "${SKIP_WIKI_INDEX:-0}" == "1" ]] || index_wikis
 if [[ "${OS}" == "Darwin" && "${SKIP_COLIMA:-0}" != "1" ]]; then
   install_colima_profiles
 fi
