@@ -2,9 +2,12 @@
 autoload -Uz colors && colors
 PROMPT='%F{green}%n@%m%f:%F{blue}%~%f$ '
 
-# Enable file-type colors for the macOS BSD ls command.
+# Enable file-type colors for the macOS BSD ls command. The first pair is the
+# directory color and the second is the symlink one; they were both bold cyan,
+# which made the two indistinguishable. Bold blue and bold cyan match what GNU
+# ls does on Ubuntu (di=01;34, ln=01;36).
 export CLICOLOR=1
-export LSCOLORS="GxGxCxDxCxegedabagaced"
+export LSCOLORS="ExGxCxDxCxegedabagaced"
 alias ls='ls -G'
 alias l='ls -lahG'
 alias ll='ls -lhG'
