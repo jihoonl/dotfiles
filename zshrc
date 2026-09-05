@@ -20,13 +20,19 @@ zstyle ':completion:*' menu select
 eval "$(hdayctl completion zsh)"
 export PATH="/Users/jihoonl/.devcontainers/bin:$PATH"
 
-# herdr in a standalone Ghostty window. cmux keeps ⌘ for itself, so herdr only
-# gets it here: ghostty/herdr.conf translates each ⌘ chord into herdr's prefix
-# sequence. ⌘Q still quits Ghostty; detach with ⌃B q.
-herdr-holiday-desktop() {
+# Attach to a remote herdr in a standalone Ghostty window. cmux cannot host it:
+# it owns every Cmd chord and leaves herdr on legacy key encoding, so the Cmd
+# bindings in herdr/config.toml only work here. ghostty/herdr.conf releases the
+# Cmd chords Ghostty binds itself. Detach with Ctrl-B q; Cmd-Q quits Ghostty.
+# Extra arguments go to herdr, so --session works.
+herdr-remote() {
   open -na Ghostty.app --args \
     --config-file="${HOME}/.config/ghostty/herdr.conf" \
-    -e herdr --remote holiday-desktop
+    -e herdr --remote "$@"
+}
+
+herdr-holiday-desktop() {
+  herdr-remote holiday-desktop "$@"
 }
 
 # Node via nvm. install.sh also symlinks node/npm/npx into ~/.local/bin so that

@@ -77,11 +77,15 @@ no Cmd chord can be delivered at all. Under a standalone Ghostty window herdr
 gets `TERM=xterm-ghostty` and the Kitty keyboard protocol, so the Cmd
 bindings in `herdr/config.toml` work the same as they do on Ubuntu.
 
-Open that window with the zsh function:
+Open that window with the zsh functions:
 
 ```sh
-herdr-holiday-desktop
+herdr-remote <host>          # any host
+herdr-holiday-desktop        # the Ubuntu box
 ```
+
+`herdr-remote` holds the Ghostty invocation; the per-host function only fills
+in `--remote`. Both pass extra arguments through to herdr.
 
 It launches Ghostty with `ghostty/herdr.conf` layered on top of the shared
 Ghostty config. That file only releases the Cmd chords Ghostty binds itself,
@@ -89,13 +93,11 @@ so herdr can receive them; cmux never loads it and keeps its own shortcuts.
 
 Detach from herdr with `Ctrl-B q`. `Cmd-Q` still quits Ghostty.
 
-The function wraps `herdr --remote holiday-desktop`, which needs a matching
-`~/.ssh/config` host entry; ssh configuration is not managed here. Another
-host, or a named session beside the default one:
+The host needs a matching `~/.ssh/config` entry; ssh configuration is not
+managed here. A named session beside the default one:
 
 ```sh
-herdr --remote <host>
-herdr --remote <host> --session <name>
+herdr-holiday-desktop --session <name>
 ```
 
 Attach this way rather than running `herdr` over a plain `ssh` session.
