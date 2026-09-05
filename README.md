@@ -7,7 +7,7 @@ Personal terminal and development configuration for macOS and Ubuntu.
 One installer covers both platforms and picks apt or Homebrew from `uname`. It
 installs Neovim, tmux, Git, the command-line utilities used by the editor
 configuration, Claude Code with its plugins, herdr with its Claude
-integration, and on macOS also Homebrew, cmux, and Ghostty.
+integration, and on macOS also Homebrew, cmux, Ghostty, and colima.
 
 ```sh
 git clone git@github.com:jihoonl/dotfiles.git ~/.dotfiles
@@ -25,6 +25,7 @@ SKIP_PACKAGES=1 ~/.dotfiles/install.sh
 SKIP_PYTHON_TOOLS=1 ~/.dotfiles/install.sh
 SKIP_PLUGINS=1 ~/.dotfiles/install.sh
 SKIP_BREW_INSTALL=1 ~/.dotfiles/install.sh   # macOS only
+SKIP_COLIMA=1 ~/.dotfiles/install.sh         # macOS only
 ```
 
 ## macOS configuration
@@ -39,6 +40,25 @@ SKIP_BREW_INSTALL=1 ~/.dotfiles/install.sh   # macOS only
 - cmux uses the Molokai terminal palette at 15 pt with an opaque background.
 - cmux uses a dark frame, a blue active-pane border, and a sidebar matching the
   terminal background.
+
+## Docker on macOS
+
+Docker runs in two colima VMs, created by the installer if they are missing:
+`default` builds arm64 images and `x86` builds amd64 ones through Rosetta.
+Both get half the host's cores and half its memory.
+
+```sh
+docker context use colima          # arm64
+docker context use colima-x86      # amd64
+```
+
+Creating an instance boots it, which takes minutes, so `SKIP_COLIMA=1` skips
+this step; an instance that already exists is never touched.
+
+`colima/template.yaml` supplies defaults that have no start flag -- currently
+the robot's insecure registry. A template is read only when an instance is
+created, so changing it does not affect the two that exist; edit
+`~/.colima/<profile>/colima.yaml` and restart that instance instead.
 
 ## herdr on macOS
 
@@ -83,5 +103,6 @@ source ~/.zshrc
 | `ghostty/config` | `~/.config/ghostty/config` (macOS only) |
 | `ghostty/herdr.conf` | `~/.config/ghostty/herdr.conf` (macOS only) |
 | `cmux/cmux.json` | `~/.config/cmux/cmux.json` (macOS only) |
+| `colima/template.yaml` | `~/.colima/_templates/default.yaml` (macOS only) |
 | `zprofile` | `~/.zprofile` (macOS only) |
 | `zshrc` | `~/.zshrc` (macOS only) |

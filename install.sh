@@ -65,6 +65,10 @@ install_packages_macos() {
   brew install \
     clang-format \
     cmake \
+    colima \
+    docker \
+    docker-buildx \
+    docker-compose \
     git \
     jq \
     neovim \
@@ -143,6 +147,7 @@ link_dotfiles() {
     backup_and_link "${DOTFILES_DIR}/ghostty/config" "${HOME}/.config/ghostty/config"
     backup_and_link "${DOTFILES_DIR}/ghostty/herdr.conf" "${HOME}/.config/ghostty/herdr.conf"
     backup_and_link "${DOTFILES_DIR}/cmux/cmux.json" "${HOME}/.config/cmux/cmux.json"
+    backup_and_link "${DOTFILES_DIR}/colima/template.yaml" "${HOME}/.colima/_templates/default.yaml"
     backup_and_link "${DOTFILES_DIR}/zshrc" "${HOME}/.zshrc"
     backup_and_link "${DOTFILES_DIR}/zprofile" "${HOME}/.zprofile"
   else
@@ -255,6 +260,31 @@ install_node() {
   done
 }
 
+# Docker on macOS runs in colima VMs: `default` builds arm64 images and `x86`
+# builds amd64 ones through Rosetta. Creating an instance boots it, which takes
+# minutes, so this is skippable and never touches an instance that exists.
+# It must run after link_dotfiles, because the template only applies at
+# creation time.
+install_colima_profiles() {
+  local cpus mem
+  cpus=$(( $(sysctl -n hw.ncpu) / 2 ))
+  mem=$(( $(sysctl -n hw.memsize) / 1073741824 / 2 ))
+
+  if [[ -f "${HOME}/.colima/default/colima.yaml" ]]; then
+    printf 'already created: colima default\n'
+  else
+    log "Creating the colima default profile (arm64)"
+    colima start --cpu "${cpus}" --memory "${mem}"
+  fi
+
+  if [[ -f "${HOME}/.colima/x86/colima.yaml" ]]; then
+    printf 'already created: colima x86\n'
+  else
+    log "Creating the colima x86 profile (amd64 through Rosetta)"
+    colima start x86 --cpu "${cpus}" --memory "${mem}" --vz-rosetta
+  fi
+}
+
 # A venv keeps these off the system python, which Ubuntu refuses to touch
 # (PEP 668) and Homebrew python only tolerates.
 install_python_tools() {
@@ -305,6 +335,9 @@ merge_agent_hooks
 install_claude
 install_herdr
 [[ "${SKIP_NODE:-0}" == "1" ]] || install_node
+if [[ "${OS}" == "Darwin" && "${SKIP_COLIMA:-0}" != "1" ]]; then
+  install_colima_profiles
+fi
 [[ "${SKIP_PYTHON_TOOLS:-0}" == "1" ]] || install_python_tools
 [[ "${SKIP_PLUGINS:-0}" == "1" ]] || install_nvim_plugins
 

@@ -1,0 +1,11 @@
+# Defaults for new colima instances.
+# Place this file at ~/.colima/_templates/default.yaml (`colima template --print`).
+#
+# Only settings with no start flag belong here; cpu, memory, disk, arch and
+# vm-type are passed by install_colima_profiles in install.sh. A template is
+# read when an instance is created, so an existing instance is unaffected --
+# edit ~/.colima/<profile>/colima.yaml and restart it instead.
+
+docker:
+  insecure-registries:
+    - 192.168.10.33:5000
