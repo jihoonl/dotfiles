@@ -10,7 +10,7 @@ export CLICOLOR=1
 export LSCOLORS="ExGxCxDxCxegedabagaced"
 alias ls='ls -G'
 alias l='ls -lahG'
-alias ll='ls -lhG'
+alias ll='ls -alG'
 
 # Use Neovim for the traditional vi and vim commands.
 alias vi='nvim'

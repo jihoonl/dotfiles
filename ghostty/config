@@ -2,3 +2,8 @@
 theme = Molokai
 font-size = 15
 background-opacity = 1.0
+
+# Map bold text onto the bright palette, which is what most Linux terminals do
+# by default. Without it ls paints symlinks with the dim cyan (#43a8d0) rather
+# than the sky blue (#51ceff) that distinguishes them from directories.
+bold-color = bright
