@@ -5,9 +5,12 @@
 # Never stashes: other Claude sessions may be writing concurrently, and an
 # autostash re-apply under a concurrent write leaves conflict markers behind.
 mode=${1:-push}
+# Dead TCP (e.g. network switch) must fail fast, or a hung push holds the lock forever.
+export GIT_SSH_COMMAND='ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 -o ServerAliveCountMax=3'
 for repo in "$HOME"/.wiki/*/; do
   [ -d "$repo/.git" ] || continue
   lock="$repo/.git/wiki-sync.lock"
+  find "$lock" -maxdepth 0 -mmin +5 -delete 2>/dev/null   # stale lock from a killed session
   mkdir "$lock" 2>/dev/null || continue   # another session is syncing
   (
     cd "$repo" || exit 0
