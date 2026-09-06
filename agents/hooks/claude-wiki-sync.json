@@ -1,0 +1,27 @@
+{
+  "SessionStart": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash \"$HOME/.claude/hooks/wiki-sync.sh\" pull",
+          "timeout": 30,
+          "statusMessage": "Syncing wiki"
+        }
+      ]
+    }
+  ],
+  "Stop": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash \"$HOME/.claude/hooks/wiki-sync.sh\" push",
+          "timeout": 60,
+          "async": true
+        }
+      ]
+    }
+  ]
+}

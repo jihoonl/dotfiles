@@ -143,6 +143,7 @@ link_dotfiles() {
   backup_and_link "${DOTFILES_DIR}/agents/herdr.md" "${HOME}/.codex/herdr.md"
   backup_and_link "${DOTFILES_DIR}/agents/cmux.md" "${HOME}/.claude/cmux.md"
   backup_and_link "${DOTFILES_DIR}/agents/cmux.md" "${HOME}/.codex/cmux.md"
+  backup_and_link "${DOTFILES_DIR}/agents/hooks/wiki-sync.sh" "${HOME}/.claude/hooks/wiki-sync.sh"
 
   backup_and_link "${DOTFILES_DIR}/herdr/config.toml" "${HOME}/.config/herdr/config.toml"
 
@@ -188,6 +189,16 @@ merge_agent_hooks() {
 
   # Personal Claude skills are their own repo, checked out as ~/.claude/skills.
   [[ -d "${HOME}/.claude/skills" ]] || git clone git@github.com:jihoonl/personal-skills.git "${HOME}/.claude/skills"
+
+  # Wiki auto-sync hooks (SessionStart pull, Stop commit+push). Idempotent: any
+  # existing wiki-sync entries are dropped before the fragment is appended.
+  jq --slurpfile frag "${DOTFILES_DIR}/agents/hooks/claude-wiki-sync.json" '
+    .hooks = ((.hooks // {}) | with_entries(.value |= (map(.hooks |= map(select(.command | test("wiki-sync") | not))) | map(select(.hooks | length > 0)))))
+    | .hooks.SessionStart = ((.hooks.SessionStart // []) + $frag[0].SessionStart)
+    | .hooks.Stop = ((.hooks.Stop // []) + $frag[0].Stop)
+  ' "${HOME}/.claude/settings.json" > "${HOME}/.claude/settings.json.tmp"
+  mv "${HOME}/.claude/settings.json.tmp" "${HOME}/.claude/settings.json"
+
   jq '.autoMemoryDirectory = "~/.wiki/personal-wiki/memory"' "${HOME}/.claude/settings.json" \
     > "${HOME}/.claude/settings.json.tmp"
   mv "${HOME}/.claude/settings.json.tmp" "${HOME}/.claude/settings.json"

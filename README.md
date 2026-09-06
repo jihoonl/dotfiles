@@ -123,6 +123,8 @@ source ~/.zshrc
 | `gitconfig` | `~/.gitconfig` |
 | `agents/AGENTS.md` | `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` |
 | `agents/CPP.md` | `~/.claude/CPP.md`, `~/.codex/CPP.md` |
+| `agents/hooks/wiki-sync.sh` | `~/.claude/hooks/wiki-sync.sh` |
+| `agents/hooks/claude-wiki-sync.json` | merged into `~/.claude/settings.json` hooks |
 | `herdr/config.toml` | `~/.config/herdr/config.toml` |
 | `terminator/` | `~/.config/terminator` (Ubuntu only) |
 | `ghostty/config` | `~/.config/ghostty/config` (macOS only) |
