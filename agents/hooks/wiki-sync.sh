@@ -15,9 +15,13 @@ for repo in "$HOME"/.wiki/*/; do
       git add -A
       git commit -q -m "wiki: auto-sync $(date +%Y-%m-%dT%H:%M) from $(hostname -s)"
     fi
-    [ -z "$(git status --porcelain)" ] && git pull -q --rebase origin HEAD
+    if [ -z "$(git status --porcelain)" ] && ! git pull -q --rebase origin HEAD; then
+      git rebase --abort 2>/dev/null   # leave the tree clean; surface below
+      exit 3
+    fi
     [ "$mode" = push ] && git push -q origin HEAD
   ) >>"$HOME/.claude/hooks/wiki-sync.log" 2>&1
+  [ $? -eq 3 ] && echo "wiki-sync: pull failed in $repo (conflict or offline); run 'git pull --rebase' there, see ~/.claude/hooks/wiki-sync.log"
   rmdir "$lock"
 done
 exit 0
