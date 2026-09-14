@@ -6,6 +6,10 @@ readonly DOTFILES_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly BACKUP_DIR="${HOME}/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 readonly NVIM_VENV="${HOME}/.local/share/nvim/venv"
 readonly NVM_VERSION="v0.40.7"
+# Neovim 0.10+ is required by nvim/init.vim (render-markdown, bundled
+# markdown treesitter parsers). Ubuntu archive and neovim-ppa/stable both
+# stop at 0.9.5 on noble, so install the upstream release tarball.
+readonly NVIM_VERSION="v0.12.5"
 # Share of the host each colima instance gets.
 readonly COLIMA_CPU_PERCENT="${COLIMA_CPU_PERCENT:-50}"
 readonly COLIMA_MEMORY_PERCENT="${COLIMA_MEMORY_PERCENT:-50}"
@@ -101,11 +105,6 @@ install_packages_macos() {
 }
 
 install_packages_linux() {
-  if ! command -v nvim >/dev/null 2>&1; then
-    log "Adding the Neovim PPA"
-    sudo add-apt-repository ppa:neovim-ppa/stable -y
-  fi
-
   log "Installing command-line tools"
   sudo apt update
   sudo apt install --yes \
@@ -115,7 +114,6 @@ install_packages_linux() {
     cmake-curses-gui \
     fonts-powerline \
     jq \
-    neovim \
     python3-dev \
     python3-venv \
     silversearcher-ag \
@@ -123,11 +121,34 @@ install_packages_linux() {
     xsel
 }
 
+install_neovim_linux() {
+  if [[ "$(/usr/local/bin/nvim --version 2>/dev/null | head -1)" == "NVIM ${NVIM_VERSION}" ]]; then
+    printf 'already installed: neovim %s\n' "${NVIM_VERSION}"
+    return
+  fi
+
+  local arch
+  case "$(uname -m)" in
+    x86_64) arch=x86_64 ;;
+    aarch64|arm64) arch=arm64 ;;
+    *) die "unsupported architecture for neovim: $(uname -m)" ;;
+  esac
+
+  log "Installing Neovim ${NVIM_VERSION}"
+  local tmp
+  tmp="$(mktemp -d)"
+  curl -fL "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-${arch}.tar.gz" \
+    | tar -xz -C "${tmp}"
+  sudo cp -r "${tmp}/nvim-linux-${arch}/." /usr/local/
+  rm -rf "${tmp}"
+}
+
 set_default_editor_linux() {
   log "Making Neovim the default editor"
-  sudo update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60
-  sudo update-alternatives --install /usr/bin/vim vim /usr/bin/nvim 60
-  sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 60
+  # Above the apt neovim package's own alternatives, which sit at 60.
+  sudo update-alternatives --install /usr/bin/vi vi /usr/local/bin/nvim 200
+  sudo update-alternatives --install /usr/bin/vim vim /usr/local/bin/nvim 200
+  sudo update-alternatives --install /usr/bin/editor editor /usr/local/bin/nvim 200
 }
 
 link_dotfiles() {
@@ -399,6 +420,7 @@ case "${OS}" in
     ;;
   Linux)
     [[ "${SKIP_PACKAGES:-0}" == "1" ]] || install_packages_linux
+    [[ "${SKIP_PACKAGES:-0}" == "1" ]] || install_neovim_linux
     set_default_editor_linux
     ;;
   *)

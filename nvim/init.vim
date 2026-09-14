@@ -70,12 +70,18 @@ Plug 'saihoooooooo/vim-textobj-space' " empty space with > S
 Plug 'whatyouhide/vim-textobj-xmlattr' " xml/html tags with > x
 Plug 'bps/vim-textobj-python' " python function /class with > f > c
 
+" markdown
+Plug 'MeanderingProgrammer/render-markdown.nvim'
+
 " Github copilot
 Plug 'github/copilot.vim'
 
 " Tandem pair programming
 Plug '~/work/tandem/tandem'
 call plug#end()
+
+lua require('render-markdown').setup({})
+autocmd FileType markdown lua vim.treesitter.start()
 
 
 "Settings
