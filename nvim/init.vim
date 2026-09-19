@@ -71,7 +71,8 @@ Plug 'whatyouhide/vim-textobj-xmlattr' " xml/html tags with > x
 Plug 'bps/vim-textobj-python' " python function /class with > f > c
 
 " markdown
-Plug 'MeanderingProgrammer/render-markdown.nvim'
+Plug 'toppair/peek.nvim', { 'do': 'deno task --quiet build:fast' }
+Plug 'ellisonleao/glow.nvim'
 
 " Github copilot
 Plug 'github/copilot.vim'
@@ -80,7 +81,10 @@ Plug 'github/copilot.vim'
 Plug '~/work/tandem/tandem'
 call plug#end()
 
-lua require('render-markdown').setup({})
+lua require('peek').setup({ app = 'browser' })
+command! PeekOpen lua require('peek').open()
+command! PeekClose lua require('peek').close()
+lua require('glow').setup({})
 autocmd FileType markdown lua vim.treesitter.start()
 
 

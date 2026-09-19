@@ -6,10 +6,12 @@ readonly DOTFILES_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly BACKUP_DIR="${HOME}/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 readonly NVIM_VENV="${HOME}/.local/share/nvim/venv"
 readonly NVM_VERSION="v0.40.7"
-# Neovim 0.10+ is required by nvim/init.vim (render-markdown, bundled
-# markdown treesitter parsers). Ubuntu archive and neovim-ppa/stable both
+# Neovim 0.10+ is required by nvim/init.vim (bundled markdown treesitter
+# parsers). Ubuntu archive and neovim-ppa/stable both
 # stop at 0.9.5 on noble, so install the upstream release tarball.
 readonly NVIM_VERSION="v0.12.5"
+# glow.nvim would fetch 1.5.1 itself, which wraps wide tables into garbage.
+readonly GLOW_VERSION="3.0.0"
 # Share of the host each colima instance gets.
 readonly COLIMA_CPU_PERCENT="${COLIMA_CPU_PERCENT:-50}"
 readonly COLIMA_MEMORY_PERCENT="${COLIMA_MEMORY_PERCENT:-50}"
@@ -275,6 +277,35 @@ install_herdr() {
   herdr integration install claude
 }
 
+# peek.nvim renders markdown through a Deno process, and its PlugInstall
+# build step runs `deno task`, so Deno must exist before the plugins do.
+install_deno() {
+  if command -v deno >/dev/null 2>&1; then
+    printf 'already installed: deno\n'
+    return
+  fi
+  log "Installing Deno"
+  curl -fsSL https://deno.land/install.sh | DENO_INSTALL="${HOME}/.local" sh -s -- --no-modify-path
+}
+
+# In-terminal markdown preview for glow.nvim (:Glow), works over ssh.
+install_glow() {
+  if [[ "$("${HOME}/.local/bin/glow" --version 2>/dev/null)" == "glow version ${GLOW_VERSION} "* ]]; then
+    printf 'already installed: glow %s\n' "${GLOW_VERSION}"
+    return
+  fi
+  log "Installing glow ${GLOW_VERSION}"
+  local arch
+  case "$(uname -m)" in
+    x86_64) arch=x86_64 ;;
+    aarch64 | arm64) arch=arm64 ;;
+    *) die "unsupported architecture for glow: $(uname -m)" ;;
+  esac
+  mkdir -p "${HOME}/.local/bin"
+  curl -fsSL "https://github.com/charmbracelet/glow/releases/download/v${GLOW_VERSION}/glow_${GLOW_VERSION}_${OS}_${arch}.tar.gz" \
+    | tar -zxf - -C "${HOME}/.local/bin" --strip-components=1 "glow_${GLOW_VERSION}_${OS}_${arch}/glow"
+}
+
 # Claude Code plugin hooks (ponytail) and MCP servers (qmd, chrome-devtools)
 # shell out to node/npx, so a Node runtime is not optional here.
 install_node() {
@@ -432,6 +463,8 @@ link_dotfiles
 merge_agent_hooks
 install_claude
 install_herdr
+install_deno
+install_glow
 [[ "${SKIP_NODE:-0}" == "1" ]] || install_node
 [[ "${SKIP_WIKI_INDEX:-0}" == "1" ]] || index_wikis
 if [[ "${OS}" == "Darwin" && "${SKIP_COLIMA:-0}" != "1" ]]; then
