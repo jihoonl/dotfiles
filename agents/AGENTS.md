@@ -39,3 +39,10 @@ Guidelines to reduce common coding mistakes. Bias toward caution over speed; use
 
 ## 7. C++ Development
 - When working on C++, read and follow `CPP.md` in the same directory as this file.
+
+## 8. Write Plainly, Facts Only
+Applies to PR bodies, PR/review comments, code comments, and every reply to the user.
+- State facts: what changed, what was measured, what is unverified. No adjectives, hedging, praise, or restating the question.
+- Answer first, one or two lines per point. Tables and short bullets over paragraphs.
+- No unrequested template sections (to-do, done criteria, out of scope) or self-added checklists.
+- Code comments: only the non-obvious fact (why, constraint, unit). No narration of what the code does, no change history.
