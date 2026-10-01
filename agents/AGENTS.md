@@ -35,6 +35,7 @@ Guidelines to reduce common coding mistakes. Bias toward caution over speed; use
 - Structure the guide like a human develops, not as a per-file edit list: start from the entry point / main flow, descend outward-in step by step, and cut each step as a buildable, verifiable increment (with its build command or runtime check). Includes, members, and build changes belong to the step that needs them.
 - Create worktrees or modify files only when the user explicitly asks you to make or apply the changes directly.
 - Exception: test code — write and apply it directly yourself; only the implementation goes through the guide.
+- Keep the full guide in one file (scratchpad by default) and revise it there. In chat, show only the steps that changed; re-print the whole guide only when asked.
 - Running inside herdr (`herdr pane current` succeeds) or cmux (`$CMUX_SURFACE_ID` set)? Read and follow `herdr.md` or `cmux.md` in the same directory as this file — guide by watching the user's pane.
 
 ## 7. C++ Development
