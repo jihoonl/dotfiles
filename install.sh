@@ -335,7 +335,7 @@ install_node() {
 
   mkdir -p "${HOME}/.local/bin"
   local node_bin tool
-  node_bin="$(dirname "$(nvm which current)")"
+  node_bin="$(dirname "$(nvm which default)")"
   for tool in node npm npx qmd; do
     ln -sfn "${node_bin}/${tool}" "${HOME}/.local/bin/${tool}"
   done
