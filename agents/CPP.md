@@ -34,6 +34,7 @@
 - Prefer the standard library and existing dependencies.
 - Keep headers self-contained and expose the smallest necessary interface.
 - Do not add abstractions, configurability, or dependencies for hypothetical needs.
+- Test seams on control paths: template parameter or reference to an interface, not `std::function`.
 - Treat compiler warnings as defects in changed code; do not silence them without a reason.
 
 ## Build and Verification
