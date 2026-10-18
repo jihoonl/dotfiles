@@ -238,6 +238,7 @@ install_claude() {
   log "Installing Claude Code plugins"
   claude plugin marketplace add tobi/qmd
   claude plugin marketplace add DietrichGebert/ponytail
+  claude plugin marketplace add "${DOTFILES_DIR}/agents/claude-mods"
   local plugin
   for plugin in github@claude-plugins-official \
                 claude-md-management@claude-plugins-official \
@@ -248,7 +249,8 @@ install_claude() {
                 clangd-lsp@claude-plugins-official \
                 chrome-devtools-mcp@claude-plugins-official \
                 qmd@qmd \
-                ponytail@ponytail; do
+                ponytail@ponytail \
+                md-render@dotfiles; do
     claude plugin install -y "${plugin}"
   done
 

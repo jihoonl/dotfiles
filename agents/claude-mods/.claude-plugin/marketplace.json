@@ -1,0 +1,5 @@
+{
+  "name": "dotfiles",
+  "owner": { "name": "Jihoon Lee" },
+  "plugins": [{ "name": "md-render", "source": "./md-render" }]
+}

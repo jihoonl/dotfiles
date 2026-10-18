@@ -1,3 +1,4 @@
 __pycache__/
 *.pyc
 /nvim/plugged/
+/agents/claude-mods/*/.claude-plugin/types/
