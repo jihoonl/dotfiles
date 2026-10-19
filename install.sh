@@ -119,6 +119,7 @@ install_packages_linux() {
     python3-dev \
     python3-venv \
     silversearcher-ag \
+    timg \
     tmux \
     xsel
 }
@@ -143,6 +144,28 @@ install_neovim_linux() {
     | tar -xz -C "${tmp}"
   sudo cp -r "${tmp}/nvim-linux-${arch}/." /usr/local/
   rm -rf "${tmp}"
+}
+
+# Standalone kitten (`kitten icat`) without the kitty terminal itself: the
+# outer terminal is Ghostty, attached through herdr.
+install_kitten_linux() {
+  if [[ -x "${HOME}/.local/bin/kitten" ]]; then
+    printf 'already installed: kitten\n'
+    return
+  fi
+
+  local arch
+  case "$(uname -m)" in
+    x86_64) arch=amd64 ;;
+    aarch64 | arm64) arch=arm64 ;;
+    *) die "unsupported architecture for kitten: $(uname -m)" ;;
+  esac
+
+  log "Installing kitten"
+  mkdir -p "${HOME}/.local/bin"
+  curl -fsSL -o "${HOME}/.local/bin/kitten" \
+    "https://github.com/kovidgoyal/kitty/releases/latest/download/kitten-linux-${arch}"
+  chmod +x "${HOME}/.local/bin/kitten"
 }
 
 set_default_editor_linux() {
@@ -180,6 +203,7 @@ link_dotfiles() {
     backup_and_link "${DOTFILES_DIR}/zprofile" "${HOME}/.zprofile"
   else
     backup_and_link "${DOTFILES_DIR}/terminator" "${HOME}/.config/terminator"
+    backup_and_link "${DOTFILES_DIR}/bash_aliases" "${HOME}/.bash_aliases"
   fi
 }
 
@@ -456,6 +480,7 @@ case "${OS}" in
   Linux)
     [[ "${SKIP_PACKAGES:-0}" == "1" ]] || install_packages_linux
     [[ "${SKIP_PACKAGES:-0}" == "1" ]] || install_neovim_linux
+    [[ "${SKIP_PACKAGES:-0}" == "1" ]] || install_kitten_linux
     set_default_editor_linux
     ;;
   *)
