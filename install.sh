@@ -83,6 +83,7 @@ install_packages_macos() {
     neovim \
     python \
     the_silver_searcher \
+    timg \
     tmux
 
   log "Installing a Nerd Font"
