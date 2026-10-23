@@ -27,4 +27,8 @@ for repo in "$HOME"/.wiki/*/; do
   [ $? -eq 3 ] && echo "wiki-sync: pull failed in $repo (conflict or offline); run 'git pull --rebase' there, see ~/.claude/hooks/wiki-sync.log"
   rmdir "$lock"
 done
+# Re-index qmd collections over ~/.wiki (memory/, wiki/); ~0.2 s when nothing changed.
+if [ "$mode" = push ] && command -v qmd >/dev/null; then
+  { qmd update && qmd embed; } >/dev/null 2>>"$HOME/.claude/hooks/wiki-sync.log"
+fi
 exit 0
