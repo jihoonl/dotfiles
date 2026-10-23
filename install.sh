@@ -404,6 +404,15 @@ index_wikis() {
     qmd collection add "${extracted}" --name paper-wiki-extracted
     qmd embed -c paper-wiki-extracted || printf 'qmd embed failed (lexical search still works)\n' >&2
   fi
+
+  # Claude's auto memory (autoMemoryDirectory) lives outside wiki/, so it is
+  # its own collection; wiki-sync.sh keeps it indexed after that.
+  local memory="${HOME}/.wiki/personal-wiki/memory"
+  if [[ -d "${memory}" ]] \
+    && ! qmd collection list 2>/dev/null | awk '{print $1}' | grep -qxF memory; then
+    qmd collection add "${memory}" --name memory
+    qmd embed -c memory || printf 'qmd embed failed (lexical search still works)\n' >&2
+  fi
 }
 
 # Docker on macOS runs in colima VMs: `default` builds arm64 images and `x86`
