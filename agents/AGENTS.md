@@ -53,4 +53,4 @@ Applies to PR bodies, PR/review comments, code comments, and every reply to the 
 - State facts: what changed, what was measured, what is unverified. No adjectives, hedging, praise, or restating the question.
 - Answer first, one or two lines per point. Tables and short bullets over paragraphs.
 - No unrequested template sections (to-do, done criteria, out of scope) or self-added checklists.
-- Code comments: only the non-obvious fact (why, constraint, unit). No narration of what the code does, no change history.
+- Code comments: only what no name, type, or test can carry: an external rule, a physical fact, a measured value and its source, a unit or sentinel in an untyped config, or the one-line reason a reader would otherwise undo, placed above that line. No narration, headers, banners, or change history.
