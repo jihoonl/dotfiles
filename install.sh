@@ -192,6 +192,7 @@ link_dotfiles() {
   backup_and_link "${DOTFILES_DIR}/agents/cmux.md" "${HOME}/.codex/cmux.md"
   backup_and_link "${DOTFILES_DIR}/agents/hooks/wiki-sync.sh" "${HOME}/.claude/hooks/wiki-sync.sh"
   backup_and_link "${DOTFILES_DIR}/agents/statusline.sh" "${HOME}/.claude/statusline.sh"
+  backup_and_link "${DOTFILES_DIR}/agents/claude-agents/comment-sicko.md" "${HOME}/.claude/agents/comment-sicko.md"
 
   backup_and_link "${DOTFILES_DIR}/herdr/config.toml" "${HOME}/.config/herdr/config.toml"
 
