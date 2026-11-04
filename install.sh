@@ -240,6 +240,9 @@ merge_agent_hooks() {
   # Personal Claude skills are their own repo, checked out as ~/.claude/skills.
   [[ -d "${HOME}/.claude/skills" ]] || git clone git@github.com:jihoonl/personal-skills.git "${HOME}/.claude/skills"
 
+  # Personal ops agents are their own repo; crontab runs them from this path.
+  [[ -d "${HOME}/work/agentfarm" ]] || git clone git@github.com:jihoonl/agentfarm.git "${HOME}/work/agentfarm"
+
   # Wiki auto-sync hooks (SessionStart pull, Stop commit+push). Idempotent: any
   # existing wiki-sync entries are dropped before the fragment is appended.
   jq --slurpfile frag "${DOTFILES_DIR}/agents/hooks/claude-wiki-sync.json" '
