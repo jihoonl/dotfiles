@@ -5,6 +5,7 @@ import subprocess
 import sys
 import threading
 import time
+import unicodedata
 from pathlib import Path
 
 from slack_sdk import WebClient
@@ -26,22 +27,24 @@ def session_prompt(ev, allowed):
     if not (is_dm or ev.get("type") == "app_mention"):
         return None
     thread = f" thread={ev['thread_ts']}" if ev.get("thread_ts") else ""
-    # ponytail: newlines collapse to spaces because Enter would submit early; use bracketed paste if formatting matters.
+    # ponytail: newlines collapse to spaces so each message stays one [slack …] line; keep them if formatting matters.
     text = " ".join(ev.get("text", "").split())
+    # An ESC would reach the TUI as a key and interrupt the session's turn.
+    text = "".join(c for c in text if unicodedata.category(c) not in ("Cc", "Cf"))
     return f"[slack ch={ev['channel']} ts={ev['ts']}{thread}] {text}"
 
 
-def session_status():
-    out = subprocess.run(["herdr", "pane", "get", SESSION_PANE], check=True, capture_output=True, text=True)
-    return json.loads(out.stdout)["result"]["pane"]["agent_status"]
-
-
 def type_into_session(prompt):
-    # Typing into a permission or question dialog would answer it; Claude Code queues input typed while it works.
+    # herdr refuses a prompt while an approval or question dialog is up, so the text cannot answer it;
+    # Claude Code queues a prompt that arrives while it works.
     with SEND_LOCK:
-        while session_status() == "blocked":
+        while True:
+            out = subprocess.run(["herdr", "agent", "prompt", SESSION_PANE, prompt], capture_output=True, text=True)
+            if out.returncode == 0:
+                return
+            if "agent_blocked" not in out.stdout + out.stderr:
+                raise RuntimeError(out.stdout + out.stderr)
             time.sleep(2)
-        subprocess.run(["herdr", "pane", "run", SESSION_PANE, prompt], check=True, capture_output=True)
 
 
 def on_request(client, req):
