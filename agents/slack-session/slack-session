@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Usage: slack-session [dir]
+set -euo pipefail
+
+dir=$(realpath "${1:-$PWD}")
+here=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+
+if herdr agent get slack-session >/dev/null 2>&1; then
+  echo "slack-session 에이전트가 이미 실행 중입니다." >&2
+  exit 1
+fi
+
+new=$(herdr pane split --current --direction right --cwd "$dir" --no-focus |
+  python3 -c 'import json, sys; print(json.load(sys.stdin)["result"]["pane"]["pane_id"])')
+
+herdr agent start slack-session --kind claude --pane "$new" -- \
+  --agent slack-session --permission-mode auto >/dev/null
+
+SLACK_SESSION_PANE=$new exec uv run -q --no-project --with slack-sdk python "$here/slack_listen.py"
