@@ -60,6 +60,10 @@ def on_request(client, req):
     if not prompt:
         return
     try:
+        client.web_client.reactions_add(channel=ev["channel"], timestamp=ev["ts"], name="eyes")
+    except Exception as e:
+        print(f"reaction failed: {e}", flush=True)
+    try:
         type_into_session(prompt)
         print(f"→ {SESSION_PANE}", flush=True)
     except Exception as e:
