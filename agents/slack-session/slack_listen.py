@@ -19,19 +19,38 @@ REPLY_FIFO = STATE_DIR / "reply.fifo"
 SEND_LOCK = threading.Lock()
 
 
-def session_prompt(ev, allowed):
+def session_prompt(ev, allowed, in_group_dm_with_allowed=lambda channel: False):
     """Text to type into the session pane, or None when the event must not reach it."""
-    if ev.get("bot_id") or ev.get("subtype") or ev.get("user") not in allowed:
+    if ev.get("bot_id") or ev.get("subtype") or not ev.get("user"):
         return None
     is_dm = ev.get("type") == "message" and ev.get("channel_type") == "im"
-    if not (is_dm or ev.get("type") == "app_mention"):
+    is_mention = ev.get("type") == "app_mention"
+    if ev["user"] in allowed:
+        if not (is_dm or is_mention):
+            return None
+        kind, sender = "slack", ""
+    elif is_mention and in_group_dm_with_allowed(ev["channel"]):
+        kind, sender = "slack-guest", f" user={ev['user']}"
+    else:
         return None
     thread = f" thread={ev['thread_ts']}" if ev.get("thread_ts") else ""
     # ponytail: newlines collapse to spaces so each message stays one [slack …] line; keep them if formatting matters.
     text = " ".join(ev.get("text", "").split())
     # An ESC would reach the TUI as a key and interrupt the session's turn.
     text = "".join(c for c in text if unicodedata.category(c) not in ("Cc", "Cf"))
-    return f"[slack ch={ev['channel']} ts={ev['ts']}{thread}] {text}"
+    return f"[{kind} ch={ev['channel']} ts={ev['ts']}{thread}{sender}] {text}"
+
+
+def in_group_dm_with(web, channel, users):
+    """Whether the channel is a group DM one of the users is in; False when Slack refuses the lookup."""
+    try:
+        if not web.conversations_info(channel=channel)["channel"].get("is_mpim"):
+            return False
+        # ponytail: first page only (100 members); Slack caps a group DM at 9.
+        return bool(users & set(web.conversations_members(channel=channel)["members"]))
+    except Exception as e:
+        print(f"group DM lookup failed: {e}", flush=True)
+        return False
 
 
 def type_into_session(prompt):
@@ -56,7 +75,7 @@ def on_request(client, req):
     allowed = set(ALLOW_FILE.read_text().split()) if ALLOW_FILE.exists() else set()
     body = f": {ev.get('text')}" if ev.get("user") in allowed else ""
     print(f"{ev.get('type')} user={ev.get('user')} ch={ev.get('channel')}{body}", flush=True)
-    prompt = session_prompt(ev, allowed)
+    prompt = session_prompt(ev, allowed, lambda channel: in_group_dm_with(client.web_client, channel, allowed))
     if not prompt:
         return
     try:
