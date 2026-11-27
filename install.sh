@@ -191,9 +191,14 @@ link_dotfiles() {
   backup_and_link "${DOTFILES_DIR}/agents/cmux.md" "${HOME}/.claude/cmux.md"
   backup_and_link "${DOTFILES_DIR}/agents/cmux.md" "${HOME}/.codex/cmux.md"
   backup_and_link "${DOTFILES_DIR}/agents/hooks/wiki-sync.sh" "${HOME}/.claude/hooks/wiki-sync.sh"
+  backup_and_link "${DOTFILES_DIR}/agents/hooks/cpp-guide.sh" "${HOME}/.claude/hooks/cpp-guide.sh"
   backup_and_link "${DOTFILES_DIR}/agents/statusline.sh" "${HOME}/.claude/statusline.sh"
-  backup_and_link "${DOTFILES_DIR}/agents/claude-agents/comment-sicko.md" "${HOME}/.claude/agents/comment-sicko.md"
-  backup_and_link "${DOTFILES_DIR}/agents/claude-agents/slack-session.md" "${HOME}/.claude/agents/slack-session.md"
+  backup_and_link "${DOTFILES_DIR}/agents/subagents/comment-sicko.md" "${HOME}/.claude/agents/comment-sicko.md"
+  backup_and_link "${DOTFILES_DIR}/agents/subagents/slack-session.md" "${HOME}/.claude/agents/slack-session.md"
+  backup_and_link "${DOTFILES_DIR}/agents/AGENTS.md" "${HOME}/.gemini/config/AGENTS.md"
+  backup_and_link "${DOTFILES_DIR}/agents/CPP.md" "${HOME}/.gemini/config/CPP.md"
+  backup_and_link "${DOTFILES_DIR}/agents/herdr.md" "${HOME}/.gemini/config/herdr.md"
+  backup_and_link "${DOTFILES_DIR}/agents/cmux.md" "${HOME}/.gemini/config/cmux.md"
   backup_and_link "${DOTFILES_DIR}/agents/slack-session/slack-session" "${HOME}/.local/bin/slack-session"
 
   backup_and_link "${DOTFILES_DIR}/herdr/config.toml" "${HOME}/.config/herdr/config.toml"
@@ -211,25 +216,147 @@ link_dotfiles() {
   fi
 }
 
+render_subagents() {
+  local src_dir="${1:-${DOTFILES_DIR}/agents/subagents}"
+  python3 - "${src_dir}" "${HOME}/.gemini/config/agents" "${HOME}/.codex/agents" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+src_dir, agy_dir, codex_dir = (Path(p) for p in sys.argv[1:4])
+agy_dir.mkdir(parents=True, exist_ok=True)
+codex_dir.mkdir(parents=True, exist_ok=True)
+
+# Antigravity hangs when `tools` names an unmapped Claude tool, and omits write
+# tools when `tools` is left out.
+TOOL_MAP = {
+    "Read": ["read_file"],
+    "Glob": ["read_file"],
+    "Grep": ["read_file"],
+    "Edit": ["edit_file"],
+    "MultiEdit": ["edit_file"],
+    "Write": ["write_file"],
+    "Bash": ["run_command", "manage_task"],
+    "WebFetch": ["search_web"],
+    "WebSearch": ["search_web"],
+}
+ALL_AGY_TOOLS = ["read_file", "edit_file", "write_file", "run_command", "manage_task", "search_web"]
+
+for src in sorted(src_dir.glob("*.md")):
+    text = src.read_text(encoding="utf-8")
+    meta = {}
+    body = text
+    if text.startswith("---\n"):
+        end = text.find("\n---\n", 4)
+        if end != -1:
+            for line in text[4:end].splitlines():
+                if ":" in line:
+                    k, v = line.split(":", 1)
+                    meta[k.strip()] = v.strip()
+            body = text[end + 5:].lstrip("\n")
+
+    name = meta.get("name", src.stem)
+    desc = meta.get("description", "")
+    if "tools" in meta:
+        main_agent = "false"
+        agy_tools = []
+        for t in (x.strip() for x in meta["tools"].split(",")):
+            for mapped in TOOL_MAP.get(t, []):
+                if mapped not in agy_tools:
+                    agy_tools.append(mapped)
+    else:
+        main_agent = "true"
+        agy_tools = ALL_AGY_TOOLS
+
+    tools_yaml = "\n".join(f"  - {t}" for t in agy_tools)
+    agy_out = agy_dir / f"{name}.md"
+    agy_out.unlink(missing_ok=True)
+    agy_out.write_text(
+        f"---\nname: {name}\ndescription: {json.dumps(desc)}\n"
+        f"subagent: true\nmainAgent: {main_agent}\ntools:\n{tools_yaml}\n---\n\n{body}",
+        encoding="utf-8",
+    )
+
+    codex_out = codex_dir / f"{name}.toml"
+    codex_out.unlink(missing_ok=True)
+    instr = f"'''\n{body}'''" if "'''" not in body else json.dumps(body)
+    codex_out.write_text(
+        f"name = {json.dumps(name)}\ndescription = {json.dumps(desc)}\n\n"
+        f"developer_instructions = {instr}\n",
+        encoding="utf-8",
+    )
+PY
+}
+
+sync_agent_skills() {
+  rm -f "${HOME}/.gemini/config/skills.json"
+  backup_and_link "${HOME}/.claude/skills" "${HOME}/.gemini/config/skills"
+
+  # ~/.codex/skills owns .system/, so link each skill directory individually.
+  mkdir -p "${HOME}/.codex/skills"
+  local skill_md skill_dir
+  for skill_md in "${HOME}/.claude/skills"/*/SKILL.md; do
+    [[ -f "${skill_md}" ]] || continue
+    skill_dir="$(dirname -- "${skill_md}")"
+    ln -sfn "${skill_dir}" "${HOME}/.codex/skills/$(basename -- "${skill_dir}")"
+  done
+}
+
 # Hook configs live inside larger machine-local files (~/.claude/settings.json,
-# ~/.codex/hooks.json), so they are merged with jq instead of symlinked.
-merge_hook_entry() {
+# ~/.codex/hooks.json, ~/.gemini/config/hooks.json), so they are merged with jq.
+merge_pre_tool_hook() {
   local target="$1"
-  local fragment="$2"
+  local matcher="$2"
+  local cmd="$3"
 
   mkdir -p "$(dirname -- "${target}")"
-  [[ -f "${target}" ]] || printf '{}\n' > "${target}"
-  jq --slurpfile entry "${fragment}" \
-    '.hooks.PreToolUse = ((.hooks.PreToolUse // []) | map(select(.matcher != $entry[0].matcher))) + [$entry[0]]' \
-    "${target}" > "${target}.tmp"
+  [[ -s "${target}" ]] || printf '{}\n' > "${target}"
+  jq --arg m "${matcher}" --arg c "${cmd}" '
+    .hooks.PreToolUse = (
+      ((.hooks.PreToolUse // []) | map(select(.matcher != $m)))
+      + [{matcher: $m, hooks: [{type: "command", command: $c, timeout: 10}]}]
+    )
+  ' "${target}" > "${target}.tmp"
   mv "${target}.tmp" "${target}"
   printf 'hook merged: %s\n' "${target}"
 }
 
+merge_wiki_sync_hooks() {
+  local target="$1"
+
+  mkdir -p "$(dirname -- "${target}")"
+  [[ -s "${target}" ]] || printf '{}\n' > "${target}"
+  jq '
+    .hooks = ((.hooks // {}) | with_entries(.value |= (map(.hooks |= map(select(.command | test("wiki-sync") | not))) | map(select(.hooks | length > 0)))))
+    | .hooks.SessionStart = ((.hooks.SessionStart // []) + [{hooks: [{type: "command", command: "bash \"$HOME/.claude/hooks/wiki-sync.sh\" --hook pull", timeout: 30}]}])
+    | .hooks.Stop = ((.hooks.Stop // []) + [{hooks: [{type: "command", command: "bash \"$HOME/.claude/hooks/wiki-sync.sh\" --hook push", timeout: 10}]}])
+  ' "${target}" > "${target}.tmp"
+  mv "${target}.tmp" "${target}"
+}
+
 merge_agent_hooks() {
-  log "Merging C++ guide hooks"
-  merge_hook_entry "${HOME}/.claude/settings.json" "${DOTFILES_DIR}/agents/hooks/claude-cpp-guide.json"
-  merge_hook_entry "${HOME}/.codex/hooks.json" "${DOTFILES_DIR}/agents/hooks/codex-cpp-guide.json"
+  log "Configuring agent rules, skills, subagents, and hooks"
+  render_subagents
+
+  merge_pre_tool_hook "${HOME}/.claude/settings.json" \
+    "Edit|Write|Read" \
+    "bash \"\$HOME/.claude/hooks/cpp-guide.sh\""
+  merge_pre_tool_hook "${HOME}/.codex/hooks.json" \
+    "^(apply_patch|write|Write|edit|Edit|multi_edit|MultiEdit|read|Read|read_file|shell|local_shell|exec_command|bash)$" \
+    "bash \"\$HOME/.claude/hooks/cpp-guide.sh\""
+
+  # Antigravity PreToolUse cannot inject context; its glob rule inlines CPP.md.
+  mkdir -p "${HOME}/.gemini/config/rules"
+  rm -f "${HOME}/.gemini/config/rules/cpp.md"
+  cat > "${HOME}/.gemini/config/rules/cpp.md" <<'EOF'
+---
+trigger: glob
+globs: "*.cpp, *.cc, *.cxx, *.hpp, *.hh, *.hxx, *.h, *.inl, *.ipp"
+description: "ISO C++17 and MISRA C++:2023 development guide."
+---
+
+@[C++ Development Guide](~/.gemini/config/CPP.md)
+EOF
 
   # Claude auto-memory lives in the llm-wiki repo so it follows the user across
   # machines (git) and projects (one shared directory).
@@ -239,25 +366,38 @@ merge_agent_hooks() {
   # PDFs, so the corpus travels with the machine.
   [[ -d "${HOME}/.wiki/paper-wiki" ]] || git clone git@github.com:jihoonl/paper-wiki.git "${HOME}/.wiki/paper-wiki"
 
-  # Personal Claude skills are their own repo, checked out as ~/.claude/skills.
+  # Personal skills are their own repo, checked out once at ~/.claude/skills and
+  # linked into Antigravity and Codex.
   [[ -d "${HOME}/.claude/skills" ]] || git clone git@github.com:jihoonl/personal-skills.git "${HOME}/.claude/skills"
+  sync_agent_skills
 
   # Personal ops agents are their own repo; crontab runs them from this path.
   [[ -d "${HOME}/work/agentfarm" ]] || git clone git@github.com:jihoonl/agentfarm.git "${HOME}/work/agentfarm"
 
-  # Wiki auto-sync hooks (SessionStart pull, Stop commit+push). Idempotent: any
-  # existing wiki-sync entries are dropped before the fragment is appended.
-  jq --slurpfile frag "${DOTFILES_DIR}/agents/hooks/claude-wiki-sync.json" '
-    .hooks = ((.hooks // {}) | with_entries(.value |= (map(.hooks |= map(select(.command | test("wiki-sync") | not))) | map(select(.hooks | length > 0)))))
-    | .hooks.SessionStart = ((.hooks.SessionStart // []) + $frag[0].SessionStart)
-    | .hooks.Stop = ((.hooks.Stop // []) + $frag[0].Stop)
-  ' "${HOME}/.claude/settings.json" > "${HOME}/.claude/settings.json.tmp"
-  mv "${HOME}/.claude/settings.json.tmp" "${HOME}/.claude/settings.json"
+  merge_wiki_sync_hooks "${HOME}/.claude/settings.json"
+  merge_wiki_sync_hooks "${HOME}/.codex/hooks.json"
+
+  local agy_hooks="${HOME}/.gemini/config/hooks.json"
+  mkdir -p "$(dirname -- "${agy_hooks}")"
+  [[ -s "${agy_hooks}" ]] || printf '{}\n' > "${agy_hooks}"
+  jq '."wiki-sync" = {
+    SessionStart: [{type: "command", command: "bash \"$HOME/.claude/hooks/wiki-sync.sh\" --hook pull", timeout: 30}],
+    Stop: [{type: "command", command: "bash \"$HOME/.claude/hooks/wiki-sync.sh\" --hook push", timeout: 10}]
+  }' "${agy_hooks}" > "${agy_hooks}.tmp"
+  mv "${agy_hooks}.tmp" "${agy_hooks}"
 
   jq '.autoMemoryDirectory = "~/.wiki/personal-wiki/memory"
     | .statusLine = {type: "command", command: "~/.claude/statusline.sh"}' "${HOME}/.claude/settings.json" \
     > "${HOME}/.claude/settings.json.tmp"
   mv "${HOME}/.claude/settings.json.tmp" "${HOME}/.claude/settings.json"
+
+  local agy_settings="${HOME}/.gemini/antigravity-cli/settings.json"
+  mkdir -p "$(dirname -- "${agy_settings}")"
+  [[ -s "${agy_settings}" ]] || printf '{}\n' > "${agy_settings}"
+  jq '.statusLine = {type: "command", command: "~/.claude/statusline.sh", stack_with_default: true}' \
+    "${agy_settings}" > "${agy_settings}.tmp"
+  chmod 600 "${agy_settings}.tmp"
+  mv "${agy_settings}.tmp" "${agy_settings}"
 }
 
 install_claude() {
@@ -299,6 +439,27 @@ install_claude() {
   fi
 }
 
+install_antigravity() {
+  if ! command -v agy >/dev/null 2>&1; then
+    log "Installing Antigravity CLI"
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+  fi
+  export PATH="${HOME}/.local/bin:${PATH}"
+  command -v agy >/dev/null 2>&1 || die "agy is not on PATH after install"
+
+  log "Registering shared MCP servers for Antigravity and Codex"
+  agy mcp add notion-personal https://mcp.notion.com/mcp
+  agy mcp add qmd "${HOME}/.local/bin/qmd" mcp
+
+  # `codex mcp add --url` launches an interactive browser OAuth flow and blocks
+  # headless installs; Codex already ships its own `notion@openai-curated`
+  # plugin, so only register stdio `qmd` here.
+  if command -v codex >/dev/null 2>&1; then
+    codex mcp get qmd >/dev/null 2>&1 \
+      || codex mcp add qmd -- "${HOME}/.local/bin/qmd" mcp
+  fi
+}
+
 install_herdr() {
   if ! command -v herdr >/dev/null 2>&1; then
     log "Installing herdr"
@@ -307,9 +468,13 @@ install_herdr() {
   export PATH="${HOME}/.local/bin:${PATH}"
   command -v herdr >/dev/null 2>&1 || die "herdr is not on PATH after install"
 
-  # Lifecycle state detection for Claude panes, beyond screen scraping.
-  log "Installing the herdr Claude Code integration"
+  # Lifecycle state detection for agent panes, beyond screen scraping.
+  log "Installing herdr agent integrations"
   herdr integration install claude
+  herdr integration install antigravity-cli
+  if command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.codex" ]]; then
+    herdr integration install codex
+  fi
 }
 
 # peek.nvim renders markdown through a Deno process, and its PlugInstall
@@ -507,6 +672,7 @@ esac
 link_dotfiles
 merge_agent_hooks
 install_claude
+install_antigravity
 install_herdr
 install_deno
 install_glow
