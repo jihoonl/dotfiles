@@ -6,8 +6,8 @@ Personal terminal and development configuration for macOS and Ubuntu.
 
 One installer covers both platforms and picks apt or Homebrew from `uname`. It
 installs Neovim, tmux, Git, the command-line utilities used by the editor
-configuration, Claude Code with its plugins, herdr with its Claude
-integration, and on macOS also Homebrew, cmux, Ghostty, and colima.
+configuration, Claude Code with its plugins, Antigravity CLI, herdr with its
+agent integrations, and on macOS also Homebrew, cmux, Ghostty, and colima.
 
 ```sh
 git clone git@github.com:jihoonl/dotfiles.git ~/.dotfiles
@@ -121,10 +121,14 @@ source ~/.zshrc
 | `nvim/` | `~/.config/nvim` |
 | `tmux.conf` | `~/.tmux.conf` |
 | `gitconfig` | `~/.gitconfig` |
-| `agents/AGENTS.md` | `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` |
-| `agents/CPP.md` | `~/.claude/CPP.md`, `~/.codex/CPP.md` |
-| `agents/hooks/wiki-sync.sh` | `~/.claude/hooks/wiki-sync.sh` |
-| `agents/hooks/claude-wiki-sync.json` | merged into `~/.claude/settings.json` hooks |
+| `agents/AGENTS.md` | `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, `~/.gemini/config/AGENTS.md` |
+| `agents/CPP.md` | `~/.claude/CPP.md`, `~/.codex/CPP.md`, `~/.gemini/config/CPP.md` (`~/.gemini/config/rules/cpp.md` generated) |
+| `agents/herdr.md` | `~/.claude/herdr.md`, `~/.codex/herdr.md`, `~/.gemini/config/herdr.md` |
+| `agents/cmux.md` | `~/.claude/cmux.md`, `~/.codex/cmux.md`, `~/.gemini/config/cmux.md` |
+| `agents/subagents/*.md` | `~/.claude/agents/*.md` (linked), `~/.gemini/config/agents/*.md` & `~/.codex/agents/*.toml` (generated) |
+| `agents/hooks/wiki-sync.sh` | `~/.claude/hooks/wiki-sync.sh` (registered in Claude, Codex, and Antigravity hooks) |
+| `agents/hooks/cpp-guide.sh` | `~/.claude/hooks/cpp-guide.sh` (registered in Claude and Codex `PreToolUse` hooks) |
+| `~/.claude/skills` | `~/.gemini/config/skills` & `~/.codex/skills/*` |
 | `herdr/config.toml` | `~/.config/herdr/config.toml` |
 | `terminator/` | `~/.config/terminator` (Ubuntu only) |
 | `ghostty/config` | `~/.config/ghostty/config` (macOS only) |

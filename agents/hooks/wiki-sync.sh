@@ -1,9 +1,24 @@
 #!/usr/bin/env bash
-# Keep ~/.wiki/* git repos in sync. Usage: wiki-sync.sh pull|push
+# Keep ~/.wiki/* git repos in sync. Usage: wiki-sync.sh [--hook] pull|push
 # pull : fast-forward from origin (SessionStart)
 # push : commit local changes and push (Stop)
-# Never stashes: other Claude sessions may be writing concurrently, and an
+# Never stashes: other agent sessions may be writing concurrently, and an
 # autostash re-apply under a concurrent write leaves conflict markers behind.
+# Antigravity hooks require JSON on stdout and run Stop synchronously per turn.
+if [ "${1:-}" = "--hook" ]; then
+  shift
+  mode=${1:-push}
+  cat >/dev/null 2>&1 || true
+  mkdir -p "$HOME/.claude/hooks"
+  if [ "$mode" = push ]; then
+    nohup bash "$0" push >>"$HOME/.claude/hooks/wiki-sync.log" 2>&1 </dev/null &
+  else
+    bash "$0" "$mode" >>"$HOME/.claude/hooks/wiki-sync.log" 2>&1 || true
+  fi
+  printf '{}\n'
+  exit 0
+fi
+
 mode=${1:-push}
 # Dead TCP (e.g. network switch) must fail fast, or a hung push holds the lock forever.
 export GIT_SSH_COMMAND='ssh -o ConnectTimeout=10 -o ServerAliveInterval=5 -o ServerAliveCountMax=3'
